@@ -7,7 +7,9 @@ project(
 	],
 )
 
-sources = []
+sources = [
+	'src/core/Application.cpp'
+]
 
 if get_option('debug')
 	add_project_arguments(['-DDEBUG'], language: 'cpp')
@@ -30,4 +32,4 @@ expresso_dep = declare_dependency(
 	include_directories: include_directories('include'),
 )
 
-executable('main', dependencies: [expresso_dep])
+executable('main', dependencies: [expresso_dep], sources: 'sandbox/main.cpp')
