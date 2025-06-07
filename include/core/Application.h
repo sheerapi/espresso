@@ -1,4 +1,6 @@
 #pragma once
+#include "platform/Window.h"
+#include <memory>
 #include <string>
 
 namespace core
@@ -11,6 +13,8 @@ namespace core
         Application();
         virtual ~Application();
 
+        void setup();
+
         auto run() -> bool;
 
         virtual void init() {};
@@ -21,5 +25,6 @@ namespace core
 
     protected:
         std::string appName = "Game";
+        std::unique_ptr<Window> window;
     };
 }

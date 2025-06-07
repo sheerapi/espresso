@@ -11,6 +11,8 @@ auto main(int argc, const char** argv) -> int
 	app->init();
 	log_info("initialized %s!", app->getName().c_str());
 
+	app->setup();
+
 	auto result = app->run();
 
 	delete app;
