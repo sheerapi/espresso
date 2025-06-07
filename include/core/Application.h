@@ -6,7 +6,9 @@ namespace core
     class Application
     {
     public:
-        Application(const std::string& appName = "Game");
+        static Application* main;
+
+        Application();
         virtual ~Application();
 
         auto run() -> bool;
@@ -15,7 +17,9 @@ namespace core
         virtual void update() {};
         virtual void shutdown() {};
 
-    private:
-        std::string _appName;
+        auto getName() -> std::string;
+
+    protected:
+        std::string appName = "Game";
     };
 }

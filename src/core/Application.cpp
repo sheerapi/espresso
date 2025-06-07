@@ -1,10 +1,18 @@
 #include "core/Application.h"
+#include "core/log.h"
 
 namespace core
 {
-    Application::Application(const std::string& appName)
-    {
+	Application* Application::main{nullptr};
 
+	Application::Application()
+    {
+        if (main != nullptr)
+        {
+            log_error("an application instance already exists");
+        }
+
+        main = this;
     }
 
     auto Application::run() -> bool
@@ -14,6 +22,12 @@ namespace core
 
     Application::~Application()
     {
-        
+        shutdown();
+        log_warn("bye bye!");
+    }
+
+	auto Application::getName() -> std::string
+    {
+        return appName;
     }
 }

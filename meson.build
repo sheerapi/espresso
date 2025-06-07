@@ -8,7 +8,8 @@ project(
 )
 
 sources = [
-	'src/core/Application.cpp'
+	'src/core/Application.cpp',
+	'src/core/log.cpp'
 ]
 
 if get_option('debug')

@@ -1,5 +1,6 @@
 #pragma once
 #include "Application.h"
+#include "core/log.h"
 
 extern auto createApp(int argc, const char** argv) -> core::Application*;
 
@@ -8,6 +9,7 @@ auto main(int argc, const char** argv) -> int
 	auto* app = createApp(argc, argv);
 
 	app->init();
+	log_info("initialized %s!", app->getName().c_str());
 
 	auto result = app->run();
 
