@@ -1,5 +1,7 @@
 #include "platform/Window.h"
+#include "SDL_events.h"
 #include "SDL_video.h"
+#include "core/EventManager.h"
 #include "core/log.h"
 
 namespace core
@@ -80,5 +82,73 @@ namespace core
         _running = false;
 		SDL_DestroyWindow(_window);
         _window = nullptr;
+	}
+
+    void Window::handleEvent(void* event)
+    {
+        auto* sdlEvent = (SDL_Event*)event;
+
+        switch ((SDL_WindowEventID)sdlEvent->window.event)
+        {
+		case SDL_WINDOWEVENT_CLOSE:
+            close();
+            break;
+
+		case SDL_WINDOWEVENT_SHOWN:
+            EventManager::triggerEvent("window.shown");
+            break;
+
+		case SDL_WINDOWEVENT_HIDDEN:
+			EventManager::triggerEvent("window.hidden");
+			break;
+
+		case SDL_WINDOWEVENT_MOVED:
+			_xPos = sdlEvent->window.data1;
+			_yPos = sdlEvent->window.data2;
+			break;
+
+		case SDL_WINDOWEVENT_RESIZED:
+			_width = sdlEvent->window.data1;
+			_height = sdlEvent->window.data2;
+			EventManager::triggerEvent("window.resized");
+			break;
+
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+			_width = sdlEvent->window.data1;
+			_height = sdlEvent->window.data2;
+			break;
+
+		case SDL_WINDOWEVENT_MINIMIZED:
+			EventManager::triggerEvent("window.minimized");
+            break;
+
+		case SDL_WINDOWEVENT_MAXIMIZED:
+			EventManager::triggerEvent("window.maximized");
+			break;
+
+		case SDL_WINDOWEVENT_RESTORED:
+			EventManager::triggerEvent("window.restored");
+			break;
+
+		case SDL_WINDOWEVENT_ENTER:
+			EventManager::triggerEvent("mouse.enter");
+			break;
+
+		case SDL_WINDOWEVENT_LEAVE:
+			EventManager::triggerEvent("mouse.leave");
+			break;
+
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			EventManager::triggerEvent("window.focused");
+			break;
+
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			EventManager::triggerEvent("window.unfocused");
+			break;
+
+		case SDL_WINDOWEVENT_TAKE_FOCUS:
+		default:
+			break;
+		}
 	}
 }

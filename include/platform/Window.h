@@ -24,10 +24,14 @@ namespace core
 
         void close();
 
+        void handleEvent(void* event);
+
     private:
         std::string _title;
         int _width;
         int _height;
+        int _xPos;
+        int _yPos;
         bool _vsync{true};
         bool _fullscreen{false};
         bool _running;
