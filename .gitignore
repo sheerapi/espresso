@@ -1,0 +1,7 @@
+.vscode
+.cache
+build
+subprojects/*-*
+subprojects/skia/*
+!subprojects/skia/meson.build
+subprojects/packagecache
