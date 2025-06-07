@@ -10,7 +10,11 @@ project(
 sources = [
 	'src/core/Application.cpp',
 	'src/core/log.cpp',
-	'src/platfom/Window.cpp'
+	'src/platfom/Window.cpp',
+	'src/platfom/EventHandler.cpp',
+	'src/core/EventManager.cpp',
+	'src/utils/StringUtils.cpp',
+	'src/utils/Demangle.cpp'
 ]
 
 if get_option('debug')

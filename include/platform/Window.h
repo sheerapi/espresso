@@ -14,6 +14,16 @@ namespace core
 
         auto isRunning() const -> bool;
 
+        void setTitle(const std::string& title);
+        void setSize(int width, int height);
+        void setMinSize(int width, int height);
+        void setMaxSize(int width, int height);
+
+        void toggleFullscreen();
+        void toggleVsync();
+
+        void close();
+
     private:
         std::string _title;
         int _width;

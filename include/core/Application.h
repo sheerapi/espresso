@@ -23,6 +23,8 @@ namespace core
 
         auto getName() -> std::string;
 
+        auto getWindow() -> Window*;
+
     protected:
         std::string appName = "Game";
         std::unique_ptr<Window> window;

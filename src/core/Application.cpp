@@ -2,6 +2,7 @@
 #include "SDL2/SDL_events.h"
 #include "core/log.h"
 #include "SDL2/SDL.h"
+#include "platform/EventHandler.h"
 
 namespace core
 {
@@ -25,6 +26,7 @@ namespace core
         while (window->isRunning())
         {
             SDL_PollEvent(&e);
+            internals::handleEvent(e);
         }
 
         return true;
@@ -54,4 +56,9 @@ namespace core
 			window = std::unique_ptr<Window>(new Window(appName));
 		}
 	}
+
+    auto Application::getWindow() -> Window*
+    {
+        return window.get();
+    }
 }
