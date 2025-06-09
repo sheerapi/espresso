@@ -29,6 +29,8 @@ namespace platform
 		void handleEvent(void* event);
 		auto getGraphicDevice() -> graphics::GraphicDevice*;
 
+		auto getWindowHandle() -> void*;
+
 	private:
 		std::string _title;
 		int _width;

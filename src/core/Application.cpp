@@ -2,6 +2,7 @@
 #include "SDL2/SDL_events.h"
 #include "core/log.h"
 #include "SDL2/SDL.h"
+#include "graphics/RenderThread.h"
 #include "platform/EventHandler.h"
 #include "platform/ThreadManager.h"
 
@@ -17,14 +18,16 @@ namespace core
         }
 
         main = this;
+
+        platform::ThreadManager::addThread<graphics::RenderThread>();
     }
 
     auto Application::run() -> bool
     {
-        platform::ThreadManager::run();
         window->create();
+		platform::ThreadManager::run();
 
-        SDL_Event e;
+		SDL_Event e;
         while (window->isRunning())
         {
             SDL_PollEvent(&e);

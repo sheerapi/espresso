@@ -17,7 +17,9 @@ sources = [
 	'src/utils/Demangle.cpp',
 	'src/platform/Thread.cpp',
 	'src/platform/ThreadManager.cpp',
-	'src/graphics/GraphicDevice.cpp'
+	'src/graphics/GraphicDevice.cpp',
+	'src/graphics/RenderThread.cpp',
+	'src/graphics/ogl/GLGraphicDevice.cpp'
 ]
 
 if get_option('debug')

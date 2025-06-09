@@ -15,9 +15,12 @@ namespace platform
 
 	void Window::create()
 	{
+		_device = std::unique_ptr<graphics::GraphicDevice>(
+			graphics::GraphicDevice::getGraphicDevice());
+
 		_window = SDL_CreateWindow(_title.c_str(), SDL_WINDOWPOS_UNDEFINED,
 								   SDL_WINDOWPOS_UNDEFINED, _width, _height,
-								   SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+								   SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | _device->getBackend());
 
 		SDL_SetWindowData(_window, "handle", this);
 		SDL_SetWindowFullscreen(_window, _fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
@@ -29,9 +32,6 @@ namespace platform
 		}
 
 		_running = true;
-
-		_device = std::unique_ptr<graphics::GraphicDevice>(
-			graphics::GraphicDevice::getGraphicDevice());
 
 		_device->init(this);
 	}
@@ -160,5 +160,10 @@ namespace platform
 	auto Window::getGraphicDevice() -> graphics::GraphicDevice*
 	{
 		return _device.get();
+	}
+
+	auto Window::getWindowHandle() -> void*
+	{
+		return (void*)_window;
 	}
 }

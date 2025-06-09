@@ -1,6 +1,7 @@
 #include "platform/Thread.h"
 #include "SDL_timer.h"
 #include "core/log.h"
+#include "platform/ThreadManager.h"
 #include "utils/Demangle.h"
 #include <typeinfo>
 
@@ -14,7 +15,7 @@ namespace platform
 
 		threadCount++;
 
-		if (threadCount >= std::thread::hardware_concurrency() * 2)
+		if (threadCount >= (int)std::thread::hardware_concurrency() * 2)
 		{
 			log_warn("thread limit hit, consider de-spawning some threads");
 		}
@@ -24,17 +25,23 @@ namespace platform
 	{
 		try
 		{
-			init();
-            executeWorkQueue();
+			{
+				std::unique_lock<std::mutex> lock(mutex);
+				ThreadManager::getCv().wait(lock,
+											[]() { return ThreadManager::isReady(); });
+			}
 
-			while (running)
+			init();
+			executeWorkQueue();
+
+			while (running.load())
 			{
 				time.startMeasure();
 
-                executeWorkQueue();
+				executeWorkQueue();
 				update();
 
-                time.endMeasure();
+				time.endMeasure();
 			}
 
 			shutdown();
@@ -44,6 +51,9 @@ namespace platform
 			log_error("An error ocurred in %s: %s",
 					  demangle(typeid(*this).name()).c_str(), e.what());
 		}
+
+		ThreadManager::reportShutdown();
+		ThreadManager::getCv().notify_all();
 	}
 
 	Thread::~Thread()
@@ -70,8 +80,8 @@ namespace platform
 		}
 	}
 
-    void Thread::executeWorkQueue()
-    {
+	void Thread::executeWorkQueue()
+	{
 		std::lock_guard<std::mutex> lock(mutex);
 		while (!workQueue.empty())
 		{
@@ -80,18 +90,18 @@ namespace platform
 		}
 	}
 
-    ThreadTime::ThreadTime()
+	ThreadTime::ThreadTime()
 	{
 		_last = 0;
 		_now = SDL_GetPerformanceCounter();
 	}
 
-    void ThreadTime::startMeasure()
+	void ThreadTime::startMeasure()
 	{
 		_last = _now;
 	}
 
-    void ThreadTime::endMeasure()
+	void ThreadTime::endMeasure()
 	{
 		_now = SDL_GetPerformanceCounter();
 		_delta = ((static_cast<double>(_now) - static_cast<double>(_last)) * 1000 /
@@ -125,24 +135,24 @@ namespace platform
 	}
 
 	auto ThreadTime::getDelta() const -> double
-    {
-        return _delta;
-    }
+	{
+		return _delta;
+	}
 
 	auto ThreadTime::getElapsed() const -> double
-    {
-        return _elapsed;
-    }
+	{
+		return _elapsed;
+	}
 
 	auto ThreadTime::getFrames() const -> uint64_t
-    {
-        return _frames;
-    }
+	{
+		return _frames;
+	}
 
-    auto Thread::getTime() -> ThreadTime&
-    {
-        return time;
-    }
+	auto Thread::getTime() -> ThreadTime&
+	{
+		return time;
+	}
 
 	void Thread::submitTask(const std::function<void()>& task)
 	{
