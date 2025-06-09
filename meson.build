@@ -3,18 +3,21 @@ project(
 	['cpp', 'c'],
 	version: '0.0.1',
 	default_options: [
-		'cpp_std=c++11',
+		'cpp_std=c++17',
 	],
 )
 
 sources = [
 	'src/core/Application.cpp',
 	'src/core/log.cpp',
-	'src/platfom/Window.cpp',
-	'src/platfom/EventHandler.cpp',
+	'src/platform/Window.cpp',
+	'src/platform/EventHandler.cpp',
 	'src/core/EventManager.cpp',
 	'src/utils/StringUtils.cpp',
-	'src/utils/Demangle.cpp'
+	'src/utils/Demangle.cpp',
+	'src/platform/Thread.cpp',
+	'src/platform/ThreadManager.cpp',
+	'src/graphics/GraphicDevice.cpp'
 ]
 
 if get_option('debug')

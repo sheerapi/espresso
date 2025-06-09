@@ -10,5 +10,8 @@ namespace graphics
         virtual void init(void* window) = 0;
         virtual void beginFrame() {};
         virtual void endFrame() {};
+        virtual void submit() {};
+
+        static auto getGraphicDevice() -> GraphicDevice*;
     };
 }

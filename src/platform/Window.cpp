@@ -4,7 +4,7 @@
 #include "core/EventManager.h"
 #include "core/log.h"
 
-namespace core
+namespace platform
 {
 	Window::Window(const std::string& title, int width, int height)
 	{
@@ -19,87 +19,92 @@ namespace core
 								   SDL_WINDOWPOS_UNDEFINED, _width, _height,
 								   SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
-        SDL_SetWindowData(_window, "handle", this);
-        SDL_SetWindowFullscreen(_window, _fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+		SDL_SetWindowData(_window, "handle", this);
+		SDL_SetWindowFullscreen(_window, _fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 
-        if (_window == nullptr)
-        {
-            log_error("failed to create window %s", _title.c_str());
-            return;
-        }
+		if (_window == nullptr)
+		{
+			log_error("failed to create window %s", _title.c_str());
+			return;
+		}
 
-        _running = true;
+		_running = true;
+
+		_device = std::unique_ptr<graphics::GraphicDevice>(
+			graphics::GraphicDevice::getGraphicDevice());
+
+		_device->init(this);
 	}
 
-    Window::~Window()
-    {
-        if (_window != nullptr)
-        {
+	Window::~Window()
+	{
+		if (_window != nullptr)
+		{
 			close();
 		}
-    }
+	}
 
-    auto Window::isRunning() const -> bool
-    {
-        return _running;
-    }
+	auto Window::isRunning() const -> bool
+	{
+		return _running;
+	}
 
 	void Window::setTitle(const std::string& title)
-    {
-        _title = title;
-        SDL_SetWindowTitle(_window, _title.c_str());
-    }
+	{
+		_title = title;
+		SDL_SetWindowTitle(_window, _title.c_str());
+	}
 
 	void Window::setSize(int width, int height)
-    {
-        SDL_SetWindowSize(_window, width, height);
-        SDL_GetWindowSize(_window, &_width, &_height);
-    }
+	{
+		SDL_SetWindowSize(_window, width, height);
+		SDL_GetWindowSize(_window, &_width, &_height);
+	}
 
 	void Window::setMinSize(int width, int height)
-    {
+	{
 		SDL_SetWindowMinimumSize(_window, width, height);
 	}
 
 	void Window::setMaxSize(int width, int height)
-    {
-        SDL_SetWindowMaximumSize(_window, width, height);
-    }
+	{
+		SDL_SetWindowMaximumSize(_window, width, height);
+	}
 
 	void Window::toggleFullscreen()
-    {
-        _fullscreen = !_fullscreen;
+	{
+		_fullscreen = !_fullscreen;
 		SDL_SetWindowFullscreen(_window, _fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 	}
 
 	void Window::toggleVsync()
-    {
-        _vsync = !_vsync; 
-    }
-
-    void Window::close()
-    {
-        _running = false;
-		SDL_DestroyWindow(_window);
-        _window = nullptr;
+	{
+		_vsync = !_vsync;
 	}
 
-    void Window::handleEvent(void* event)
-    {
-        auto* sdlEvent = (SDL_Event*)event;
+	void Window::close()
+	{
+		_running = false;
+		SDL_DestroyWindow(_window);
+		_window = nullptr;
+	}
 
-        switch ((SDL_WindowEventID)sdlEvent->window.event)
-        {
+	void Window::handleEvent(void* event)
+	{
+		auto* sdlEvent = (SDL_Event*)event;
+
+		switch ((SDL_WindowEventID)sdlEvent->window.event)
+		{
 		case SDL_WINDOWEVENT_CLOSE:
-            close();
-            break;
+			close();
+			break;
 
 		case SDL_WINDOWEVENT_SHOWN:
-            EventManager::triggerEvent("window.shown");
-            break;
+			core::EventManager::triggerEvent("window.shown");
+			break;
 
 		case SDL_WINDOWEVENT_HIDDEN:
-			EventManager::triggerEvent("window.hidden");
+			core::EventManager::triggerEvent("window.hidden");
 			break;
 
 		case SDL_WINDOWEVENT_MOVED:
@@ -110,7 +115,7 @@ namespace core
 		case SDL_WINDOWEVENT_RESIZED:
 			_width = sdlEvent->window.data1;
 			_height = sdlEvent->window.data2;
-			EventManager::triggerEvent("window.resized");
+			core::EventManager::triggerEvent("window.resized");
 			break;
 
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
@@ -119,36 +124,41 @@ namespace core
 			break;
 
 		case SDL_WINDOWEVENT_MINIMIZED:
-			EventManager::triggerEvent("window.minimized");
-            break;
+			core::EventManager::triggerEvent("window.minimized");
+			break;
 
 		case SDL_WINDOWEVENT_MAXIMIZED:
-			EventManager::triggerEvent("window.maximized");
+			core::EventManager::triggerEvent("window.maximized");
 			break;
 
 		case SDL_WINDOWEVENT_RESTORED:
-			EventManager::triggerEvent("window.restored");
+			core::EventManager::triggerEvent("window.restored");
 			break;
 
 		case SDL_WINDOWEVENT_ENTER:
-			EventManager::triggerEvent("mouse.enter");
+			core::EventManager::triggerEvent("mouse.enter");
 			break;
 
 		case SDL_WINDOWEVENT_LEAVE:
-			EventManager::triggerEvent("mouse.leave");
+			core::EventManager::triggerEvent("mouse.leave");
 			break;
 
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			EventManager::triggerEvent("window.focused");
+			core::EventManager::triggerEvent("window.focused");
 			break;
 
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-			EventManager::triggerEvent("window.unfocused");
+			core::EventManager::triggerEvent("window.unfocused");
 			break;
 
 		case SDL_WINDOWEVENT_TAKE_FOCUS:
 		default:
 			break;
 		}
+	}
+
+	auto Window::getGraphicDevice() -> graphics::GraphicDevice*
+	{
+		return _device.get();
 	}
 }

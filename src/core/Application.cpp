@@ -3,6 +3,7 @@
 #include "core/log.h"
 #include "SDL2/SDL.h"
 #include "platform/EventHandler.h"
+#include "platform/ThreadManager.h"
 
 namespace core
 {
@@ -20,6 +21,7 @@ namespace core
 
     auto Application::run() -> bool
     {
+        platform::ThreadManager::run();
         window->create();
 
         SDL_Event e;
@@ -35,8 +37,9 @@ namespace core
     Application::~Application()
     {
         shutdown();
+		platform::ThreadManager::shutdown();
         log_warn("bye bye!");
-    }
+	}
 
 	auto Application::getName() -> std::string
     {
