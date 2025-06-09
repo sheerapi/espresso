@@ -53,11 +53,11 @@ namespace core
 
 		if (window == nullptr)
 		{
-			window = std::unique_ptr<Window>(new Window(appName));
+			window = std::unique_ptr<platform::Window>(new platform::Window(appName));
 		}
 	}
 
-    auto Application::getWindow() -> Window*
+    auto Application::getWindow() -> platform::Window*
     {
         return window.get();
     }

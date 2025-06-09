@@ -2,7 +2,7 @@
 #include <string>
 #include "SDL2/SDL_video.h"
 
-namespace core
+namespace platform
 {
     class Window
     {
