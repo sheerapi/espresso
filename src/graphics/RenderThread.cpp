@@ -3,7 +3,7 @@
 
 namespace graphics
 {
-    void RenderThread::init()
+	void RenderThread::init()
     {
 		_device = GraphicDevice::getGraphicDevice();
 		_device->setup(core::Application::main->getWindow());

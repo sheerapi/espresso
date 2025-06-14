@@ -7,7 +7,7 @@ public:
     void init() override
     {
         appName = "sandbox";
-    }
+	}
 };
 
 es_createApp(SandboxApp);

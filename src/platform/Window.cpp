@@ -161,4 +161,9 @@ namespace platform
 	{
 		return (void*)_window;
 	}
+
+	auto Window::getVsync() const -> bool
+	{
+		return _vsync;
+	}
 }

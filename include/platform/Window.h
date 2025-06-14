@@ -21,6 +21,7 @@ namespace platform
 
 		void toggleFullscreen();
 		void toggleVsync();
+		auto getVsync() const -> bool;
 
 		void close();
 

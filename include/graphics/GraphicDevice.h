@@ -13,6 +13,7 @@ namespace graphics
         virtual void beginFrame() {};
         virtual void endFrame() {};
         virtual void submit() {};
+        virtual void setVsync(bool vsync) {};
 
         virtual void makeCurrent() {};
 

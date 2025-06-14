@@ -22,5 +22,7 @@ namespace graphics::gl
     private:
         platform::Window* _window{nullptr};
         void* _context{nullptr};
+        bool _vsync{false};
+        void _setVsync();
 	};
 }
