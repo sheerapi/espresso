@@ -1,6 +1,7 @@
 #include "platform/Window.h"
 #include "SDL_events.h"
 #include "SDL_video.h"
+#include "graphics/GraphicDevice.h"
 #include "core/EventManager.h"
 #include "core/log.h"
 
@@ -15,15 +16,21 @@ namespace platform
 
 	void Window::create()
 	{
-		_device = std::unique_ptr<graphics::GraphicDevice>(
-			graphics::GraphicDevice::getGraphicDevice());
+		auto* testDevice = graphics::GraphicDevice::getGraphicDevice();
 
 		_window = SDL_CreateWindow(_title.c_str(), SDL_WINDOWPOS_UNDEFINED,
 								   SDL_WINDOWPOS_UNDEFINED, _width, _height,
-								   SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | _device->getBackend());
+								   SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI |
+									   testDevice->getBackend());
+
+		delete testDevice;
 
 		SDL_SetWindowData(_window, "handle", this);
-		SDL_SetWindowFullscreen(_window, _fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+		
+		if (_fullscreen)
+		{
+			SDL_SetWindowFullscreen(_window, _fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+		}
 
 		if (_window == nullptr)
 		{
@@ -32,16 +39,11 @@ namespace platform
 		}
 
 		_running = true;
-
-		_device->init(this);
 	}
 
 	Window::~Window()
 	{
-		if (_window != nullptr)
-		{
-			close();
-		}
+		close();
 	}
 
 	auto Window::isRunning() const -> bool
@@ -85,8 +87,6 @@ namespace platform
 	void Window::close()
 	{
 		_running = false;
-		SDL_DestroyWindow(_window);
-		_window = nullptr;
 	}
 
 	void Window::handleEvent(void* event)
@@ -155,11 +155,6 @@ namespace platform
 		default:
 			break;
 		}
-	}
-
-	auto Window::getGraphicDevice() -> graphics::GraphicDevice*
-	{
-		return _device.get();
 	}
 
 	auto Window::getWindowHandle() -> void*

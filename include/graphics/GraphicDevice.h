@@ -8,7 +8,8 @@ namespace graphics
     public:
         virtual ~GraphicDevice() = default;
 
-        virtual void init(void* window) = 0;
+        virtual void setup(void* window) {};
+        virtual void init() = 0;
         virtual void beginFrame() {};
         virtual void endFrame() {};
         virtual void submit() {};

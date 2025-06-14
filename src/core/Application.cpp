@@ -41,7 +41,9 @@ namespace core
     {
         shutdown();
 		platform::ThreadManager::shutdown();
-        log_warn("bye bye!");
+		SDL_DestroyWindow((SDL_Window*)window->getWindowHandle());
+        SDL_Quit();
+		log_warn("bye bye!");
 	}
 
 	auto Application::getName() -> std::string

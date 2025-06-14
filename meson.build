@@ -28,6 +28,7 @@ endif
 
 dependencies = [
 	dependency('sdl2'),
+	dependency('glad'),
 ]
 
 espresso_lib = library(

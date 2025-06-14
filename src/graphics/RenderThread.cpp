@@ -5,20 +5,22 @@ namespace graphics
 {
     void RenderThread::init()
     {
-		_device = core::Application::main->getWindow()->getGraphicDevice();
-        _device->makeCurrent();
+		_device = GraphicDevice::getGraphicDevice();
+		_device->setup(core::Application::main->getWindow());
+        _device->init();
 	}
 
     void RenderThread::update()
     {
-        _device->beginFrame();
+		_device->makeCurrent();
+		_device->beginFrame();
 
-        _device->endFrame();
-        _device->submit();
-    }
+		_device->endFrame();
+		_device->submit();
+	}
 
     void RenderThread::shutdown()
     {
-
+        delete _device;
     }
 }

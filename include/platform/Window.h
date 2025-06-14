@@ -1,7 +1,5 @@
 #pragma once
 #include "SDL2/SDL_video.h"
-#include "graphics/GraphicDevice.h"
-#include <memory>
 #include <string>
 
 namespace platform
@@ -9,10 +7,10 @@ namespace platform
 	class Window
 	{
 	public:
-		Window(const std::string& title, int width = 1600, int height = 900);
-		void create();
-
+		Window(const std::string& title, int width = 960, int height = 540);
 		~Window();
+		
+		void create();
 
 		auto isRunning() const -> bool;
 
@@ -27,7 +25,6 @@ namespace platform
 		void close();
 
 		void handleEvent(void* event);
-		auto getGraphicDevice() -> graphics::GraphicDevice*;
 
 		auto getWindowHandle() -> void*;
 
@@ -42,6 +39,5 @@ namespace platform
 		bool _running;
 
 		SDL_Window* _window;
-		std::unique_ptr<graphics::GraphicDevice> _device;
 	};
 }

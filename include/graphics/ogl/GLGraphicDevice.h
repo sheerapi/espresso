@@ -8,7 +8,9 @@ namespace graphics::gl
     {
     public:
         ~GraphicDeviceGL() override;
-		void init(void* window) override;
+
+        void setup(void* window) override;
+		void init() override;
 		void beginFrame() override;
 		void endFrame() override;
         void submit() override;
@@ -18,7 +20,7 @@ namespace graphics::gl
 		auto getBackend() -> uint32_t override;
 
     private:
-        platform::Window* _window;
-        void* _context;
+        platform::Window* _window{nullptr};
+        void* _context{nullptr};
 	};
 }
