@@ -1,5 +1,7 @@
 #include "graphics/RenderThread.h"
 #include "core/Application.h"
+#include "utils/Demangle.h"
+#include "utils/PerformanceTimer.h"
 
 namespace graphics
 {
@@ -7,7 +9,10 @@ namespace graphics
     {
 		_device = GraphicDevice::getGraphicDevice();
 		_device->setup(core::Application::main->getWindow());
-        _device->init();
+        {
+			es_stopwatchNamed(es_type(*_device));
+			_device->init();
+		}
 	}
 
     void RenderThread::update()

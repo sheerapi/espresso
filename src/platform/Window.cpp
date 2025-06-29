@@ -4,6 +4,7 @@
 #include "graphics/GraphicDevice.h"
 #include "core/EventManager.h"
 #include "core/log.h"
+#include "utils/PerformanceTimer.h"
 
 namespace platform
 {
@@ -16,6 +17,8 @@ namespace platform
 
 	void Window::create()
 	{
+		es_stopwatchNamed("window creation");
+		
 		auto* testDevice = graphics::GraphicDevice::getGraphicDevice();
 
 		_window = SDL_CreateWindow(_title.c_str(), SDL_WINDOWPOS_UNDEFINED,

@@ -1,14 +1,23 @@
 #pragma once
 #include "Application.h"
 #include "core/log.h"
+#include "utils/PerformanceTimer.h"
 
 extern auto createApp(int argc, const char** argv) -> core::Application*;
 
 auto main(int argc, const char** argv) -> int
 {
+	if (argc >= 2 && (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--verbose") == 0))
+	{
+		core::verbose = true;
+	}
+
 	auto* app = createApp(argc, argv);
 
-	app->init();
+	{
+		es_stopwatchNamed("user init");
+		app->init();
+	}
 	log_info("initialized %s!", app->getName().c_str());
 
 	app->setup();

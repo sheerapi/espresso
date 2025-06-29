@@ -1,10 +1,13 @@
 #include "core/Application.h"
+
+#include <memory>
 #include "SDL2/SDL_events.h"
 #include "core/log.h"
 #include "SDL2/SDL.h"
 #include "graphics/RenderThread.h"
 #include "platform/EventHandler.h"
 #include "platform/ThreadManager.h"
+#include "utils/PerformanceTimer.h"
 
 namespace core
 {
@@ -12,6 +15,8 @@ namespace core
 
 	Application::Application()
     {
+        es_stopwatch();
+
         if (main != nullptr)
         {
             log_error("an application instance already exists");
@@ -26,14 +31,11 @@ namespace core
 
     auto Application::run() -> bool
     {
-        window->create();
-		platform::ThreadManager::run();
-
 		SDL_Event e;
         while (window->isRunning())
         {
             SDL_PollEvent(&e);
-            internals::handleEvent(e);
+            ::internals::handleEvent(e);
         }
 
         return true;
@@ -55,16 +57,26 @@ namespace core
 
     void Application::setup()
     {
-		if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_TIMER |
-					 SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC | SDL_INIT_JOYSTICK) < 0)
+        es_stopwatchNamed("presentation bootstrapping");
+
 		{
-			log_error("failed to initialize platform libraries");
+            es_stopwatchNamed("platform backend init");
+            
+			if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_TIMER |
+						 SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC | SDL_INIT_JOYSTICK) <
+				0)
+			{
+				log_error("failed to initialize platform libraries");
+			}
 		}
 
 		if (window == nullptr)
 		{
-			window = std::unique_ptr<platform::Window>(new platform::Window(appName));
+			window = std::make_unique<platform::Window>(appName);
 		}
+
+		window->create();
+		platform::ThreadManager::run();
 	}
 
     auto Application::getWindow() -> platform::Window*

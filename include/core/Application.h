@@ -5,6 +5,8 @@
 
 namespace core
 {
+	inline bool verbose{false};
+
 	class Application
 	{
 	public:
