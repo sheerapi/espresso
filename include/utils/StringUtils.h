@@ -4,7 +4,7 @@
 #include <vector>
 
 /**
- * @brief Replaces every occurrence of a string in a string (confusing, right?)
+ * @brief Replaces every occurrence of a string in a string, with a string (confusing, right?)
  * why isn't this on the stdlib again?
  *
  * @param str Original string to modify

@@ -19,7 +19,8 @@ sources = [
 	'src/platform/ThreadManager.cpp',
 	'src/graphics/GraphicDevice.cpp',
 	'src/graphics/RenderThread.cpp',
-	'src/graphics/ogl/GLGraphicDevice.cpp'
+	'src/graphics/ogl/GLGraphicDevice.cpp',
+	'src/platform/AssetManager.cpp'
 ]
 
 if get_option('debug')
@@ -29,7 +30,9 @@ endif
 dependencies = [
 	dependency('sdl2'),
 	dependency('glad'),
-	dependency('luajit')
+	dependency('luajit'),
+	dependency('physfs'),
+	dependency('libzstd')
 ]
 
 espresso_lib = library(
