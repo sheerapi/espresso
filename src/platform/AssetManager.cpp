@@ -46,10 +46,9 @@ namespace core
 			archivePath = std::filesystem::current_path() / "assets";
 		}
 
-		auto localAssetsArc = archivePath + ".eapk";
-
 		mount(std::filesystem::path(archivePath), "/");
-		mount(localAssetsArc, "/");
+		mount(archivePath + ".eapk", "/");
+		mount(std::filesystem::current_path() / "assets.eapk", "/");
 	}
 
 	auto AssetManager::load(const std::string& path, std::shared_ptr<Asset> asset)

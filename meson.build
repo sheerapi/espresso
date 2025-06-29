@@ -48,4 +48,7 @@ expresso_dep = declare_dependency(
 	include_directories: include_directories('include'),
 )
 
+executable('eapkc', 'tools/AssetCompressor.cpp', dependencies: dependency('libzstd'))
+executable('eapkd', 'tools/AssetDecompressor.cpp', dependencies: dependency('libzstd'))
+
 executable('main', dependencies: [expresso_dep], sources: 'sandbox/main.cpp')
