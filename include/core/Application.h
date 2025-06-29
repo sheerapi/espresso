@@ -5,28 +5,33 @@
 
 namespace core
 {
-    class Application
-    {
-    public:
-        static Application* main;
+	class Application
+	{
+	public:
+		static Application* main;
 
-        Application();
-        virtual ~Application();
+		Application();
+		virtual ~Application();
 
-        void setup();
+		void setup();
 
-        auto run() -> bool;
+		auto run() -> bool;
 
-        virtual void init() {};
-        virtual void update() {};
-        virtual void shutdown() {};
+		virtual void init() {};
+		virtual void update() {};
+		virtual void shutdown() {};
 
-        auto getName() -> std::string;
+		auto getName() -> std::string;
 
-        auto getWindow() -> platform::Window*;
+		auto getWindow() -> platform::Window*;
 
-    protected:
-        std::string appName = "Game";
-        std::unique_ptr<platform::Window> window;
-    };
+		[[nodiscard]] auto hasInit() const -> bool;
+
+	protected:
+		std::string appName = "Game";
+		std::unique_ptr<platform::Window> window;
+
+	private:
+		bool _init{false};
+	};
 }

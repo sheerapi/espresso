@@ -20,7 +20,9 @@ namespace core
         main = this;
 
         platform::ThreadManager::addThread<graphics::RenderThread>();
-    }
+
+		_init = true;
+	}
 
     auto Application::run() -> bool
     {
