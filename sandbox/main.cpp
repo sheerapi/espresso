@@ -1,6 +1,6 @@
 #include "core/Application.h"
 #include "core/EntryPoint.h"
-#include "platform/AssetManager.h"
+#include "core/Scene.h"
 
 class SandboxApp : public core::Application
 {
@@ -8,7 +8,7 @@ public:
     void init() override
     {
         appName = "sandbox";
-        core::AssetManager::setAssetDirectory("../assets");
+        core::Scene scene("Test Scene");
 	}
 };
 

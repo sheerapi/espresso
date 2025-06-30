@@ -368,6 +368,23 @@ namespace core
 			}
 		}
 
+		void start()
+		{
+			if (_active)
+			{
+				for (const auto& component : _components)
+				{
+					component->_entity = this;
+
+					if (component->isActive())
+					{
+						component->onEnable();
+						component->start();
+					}
+				}
+			}
+		}
+
 	private:
 		std::deque<std::unique_ptr<Component>> _components;
 		std::list<std::shared_ptr<Entity>> _children;
