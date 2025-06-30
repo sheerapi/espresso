@@ -6,6 +6,7 @@
 namespace core
 {
 	inline bool verbose{false};
+	inline thread_local std::string threadName{"unknown"};
 
 	class Application
 	{

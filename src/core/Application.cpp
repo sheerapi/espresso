@@ -57,7 +57,7 @@ namespace core
 
     void Application::setup()
     {
-        es_stopwatchNamed("presentation bootstrapping");
+        es_stopwatchNamed("presentation setup");
 
 		{
             es_stopwatchNamed("platform backend init");

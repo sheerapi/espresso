@@ -7,6 +7,8 @@ extern auto createApp(int argc, const char** argv) -> core::Application*;
 
 auto main(int argc, const char** argv) -> int
 {
+	core::threadName = "main";
+	
 	if (argc >= 2 && (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--verbose") == 0))
 	{
 		core::verbose = true;

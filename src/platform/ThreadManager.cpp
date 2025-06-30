@@ -32,7 +32,7 @@ namespace platform
 				(void*)demangle(typeid(*thread).name()).c_str()); // NOLINT
 		}
 
-		log_debug("waiting for threads to terminate...");
+		log_trace("waiting for threads to terminate...");
 		cv.wait(lock, []() { return shutdowns.load() == (int)threads.size(); });
 
 		threads.clear();

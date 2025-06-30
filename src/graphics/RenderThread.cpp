@@ -7,6 +7,8 @@ namespace graphics
 {
 	void RenderThread::init()
     {
+		core::threadName = "render";
+
 		_device = GraphicDevice::getGraphicDevice();
 		_device->setup(core::Application::main->getWindow());
         {
