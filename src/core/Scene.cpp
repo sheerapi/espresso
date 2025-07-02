@@ -1,5 +1,4 @@
 #include "core/Scene.h"
-
 #include "core/Application.h"
 #include "core/Entity.h"
 #include "core/log.h"
@@ -7,13 +6,23 @@
 
 namespace core
 {
+	Scene* Scene::currentScene{new Scene()};
+
+	Scene::Scene(std::string name) : _id(++scene_id), _name(std::move(name))
+	{
+		if (currentScene == nullptr)
+		{
+			changeScene(this);
+		}
+	};
+
 	auto Scene::getEntity(unsigned int id) -> Entity*
 	{
 		for (const auto& entity : _entities)
 		{
 			if (entity->getID() == id)
 			{
-				return entity;
+				return entity.get();
 			}
 		}
 		return nullptr;
@@ -25,7 +34,7 @@ namespace core
 		{
 			if (entity->getName() == name)
 			{
-				return entity;
+				return entity.get();
 			}
 		}
 		return nullptr;
@@ -38,7 +47,7 @@ namespace core
 		{
 			if (entity->getTag() == tag)
 			{
-				entities.push_back(entity);
+				entities.push_back(entity.get());
 			}
 		}
 		return entities;
@@ -48,7 +57,7 @@ namespace core
 	{
 		for (auto it = _entities.begin(); it != _entities.end(); ++it)
 		{
-			if (*it == entity)
+			if ((*it).get() == entity)
 			{
 				(*it)->setActive(false);
 				_entities.erase(it);
@@ -118,7 +127,7 @@ namespace core
 	auto Scene::addEntity(std::string name, char tag) -> Entity*
 	{
 		auto* entity = new Entity(std::move(name), tag);
-		_entities.push_back(entity);
+		_entities.push_back(std::unique_ptr<Entity>(entity));
 		return entity;
 	}
 
@@ -132,12 +141,33 @@ namespace core
 
 	void Scene::changeScene(Scene* scene)
 	{
+		if (currentScene != nullptr)
+		{
+			log_trace("changed scene to \"%s\"", scene->getName().c_str());
+		}
+
 		currentScene = scene;
+
 		if (Application::main != nullptr && Application::main->hasInit())
 		{
 			currentScene->start();
 		}
+	}
 
-		log_trace("changed scene to \"%s\"", scene->getName().c_str());
+	auto Scene::getEntities() const -> std::vector<Entity*>
+	{
+		std::vector<Entity*> entities;
+		entities.reserve(_entities.size());
+
+		for (const auto& entity : _entities)
+		{
+			entities.push_back(entity.get());
+		}
+		return entities;
+	}
+
+	void Scene::addEntity(Entity* entity)
+	{
+		_entities.push_back(std::unique_ptr<Entity>(entity));
 	}
 }

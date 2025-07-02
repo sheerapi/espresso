@@ -21,7 +21,10 @@ sources = [
 	'src/graphics/RenderThread.cpp',
 	'src/graphics/ogl/GLGraphicDevice.cpp',
 	'src/platform/AssetManager.cpp',
-	'src/utils/PerformanceTimer.cpp'
+	'src/utils/PerformanceTimer.cpp',
+	'src/core/Scene.cpp',
+	'src/core/TickThread.cpp',
+	'src/core/Transform.cpp'
 ]
 
 if get_option('debug')

@@ -1,4 +1,5 @@
 #pragma once
+#include "platform/Thread.h"
 #include "platform/Window.h"
 #include <memory>
 #include <string>
@@ -7,6 +8,7 @@ namespace core
 {
 	inline bool verbose{false};
 	inline thread_local std::string threadName{"unknown"};
+	inline thread_local platform::ThreadTime time;
 
 	class Application
 	{

@@ -4,6 +4,7 @@
 #include "platform/ThreadManager.h"
 #include "utils/Demangle.h"
 #include <typeinfo>
+#include "core/Application.h"
 
 namespace platform
 {
@@ -36,12 +37,12 @@ namespace platform
 
 			while (running.load())
 			{
-				time.startMeasure();
+				core::time.startMeasure();
 
 				executeWorkQueue();
 				update();
 
-				time.endMeasure();
+				core::time.endMeasure();
 			}
 
 			shutdown();
@@ -151,7 +152,7 @@ namespace platform
 
 	auto Thread::getTime() -> ThreadTime&
 	{
-		return time;
+		return core::time;
 	}
 
 	void Thread::submitTask(const std::function<void()>& task)

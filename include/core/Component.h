@@ -1,4 +1,5 @@
 #pragma once
+#include "core/Transform.h"
 #include <memory>
 
 namespace core
@@ -47,10 +48,16 @@ namespace core
             return _entity;
         }
 
+		[[nodiscard]] auto getTransform() const -> Transform*
+		{
+			return _transform;
+		}
+
 	private:
 		bool _active{true};
 		unsigned long _id{0};
         Entity* _entity{nullptr};
+		Transform* _transform{nullptr};
 
 		friend class Entity;
 	};

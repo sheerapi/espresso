@@ -1,6 +1,7 @@
 #pragma once
 #include "Application.h"
 #include "Component.h"
+#include "core/Transform.h"
 #include <algorithm>
 #include <atomic>
 #include <deque>
@@ -27,18 +28,19 @@ namespace core
 			static_assert(std::is_base_of_v<Component, T>,
 						  "T must be derived from Component");
 
-			auto component = std::make_unique<T>(std::forward<Args>(args)...);
+			auto component = new T(args...);
 			component->_entity = this;
 			component->_active = true;
+			component->_transform = &transform;
 
 			if (Application::main && Application::main->hasInit())
 			{
-				component->OnEnable();
-				component->Start();
+				component->onEnable();
+				component->start();
 			}
 
-			_components.push_back(std::move(component));
-			return static_cast<T*>(_components.back().get());
+			_components.push_back(std::unique_ptr<T>(component));
+			return component;
 		}
 
 		template <typename T> auto getComponent() const -> T*
@@ -118,24 +120,23 @@ namespace core
 
 		auto addChild(std::string name = "Entity", char entityTag = 0) -> Entity*
 		{
-			auto child = std::make_shared<Entity>(std::move(name), entityTag);
+			auto* child = new Entity(std::move(name), entityTag);
 			child->_parent = this;
 			child->_active = true;
 
 			std::lock_guard<std::mutex> lock(_childrenMutex);
-			_children.push_back(child);
-			return child.get();
+			_children.push_back(std::shared_ptr<Entity>(child));
+			return child;
 		}
 
 		auto addChild(Entity* entity) -> Entity*
 		{
-			auto child = std::make_shared<Entity>(*entity);
-			child->_parent = this;
-			child->_active = true;
+			entity->_parent = this;
+			entity->_active = true;
 
 			std::lock_guard<std::mutex> lock(_childrenMutex);
-			_children.push_back(child);
-			return child.get();
+			_children.push_back(std::shared_ptr<Entity>(entity));
+			return entity;
 		}
 
 		void addChild(const std::shared_ptr<Entity>& child)
@@ -325,6 +326,8 @@ namespace core
 
 		void tick()
 		{
+			transform.update();
+			
 			if (!_active)
 			{
 				return;
@@ -339,6 +342,7 @@ namespace core
 
 				component->update();
 			}
+
 			for (const auto& child : _children)
 			{
 				child->tick();
@@ -375,6 +379,7 @@ namespace core
 				for (const auto& component : _components)
 				{
 					component->_entity = this;
+					component->_transform = &transform;
 
 					if (component->isActive())
 					{
@@ -385,8 +390,10 @@ namespace core
 			}
 		}
 
+		Transform transform;
+
 	private:
-		std::deque<std::unique_ptr<Component>> _components;
+		std::vector<std::unique_ptr<Component>> _components;
 		std::list<std::shared_ptr<Entity>> _children;
 		Entity* _parent{nullptr};
 		std::string _entityName;

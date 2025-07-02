@@ -1,7 +1,7 @@
 #pragma once
 #include "core/Component.h"
-#include <utility>
 #include <string>
+#include "core/Entity.h"
 #include <vector>
 
 namespace core
@@ -11,23 +11,12 @@ namespace core
 	class Scene
 	{
 	public:
-		Scene(std::string name = "Scene") : _id(++scene_id), _name(std::move(name))
-		{
-			if (currentScene == nullptr)
-			{
-				changeScene(this);
-			}
-		};
-
-		inline static Scene* currentScene = nullptr;
+		Scene(std::string name = "Scene");
+		static Scene* currentScene;
 
 		auto addEntity(std::string name = "Entity", char tag = 0) -> Entity*;
 
-		auto addEntity(Entity* entity) -> void
-		{
-			_entities.push_back(entity);
-		}
-
+		auto addEntity(Entity* entity) -> void;
 		auto getEntity(unsigned int id) -> Entity*;
 		auto getEntity(const std::string& name) -> Entity*;
 		auto getEntities(const char& tag) -> std::vector<Entity*>;
@@ -48,10 +37,7 @@ namespace core
 			_entities.clear();
 		}
 
-		[[nodiscard]] auto getEntities() const
-		{
-			return _entities;
-		}
+		[[nodiscard]] auto getEntities() const -> std::vector<Entity*>;
 
 		[[nodiscard]] auto getID() const
 		{
@@ -64,7 +50,7 @@ namespace core
 		}
 
 	private:
-		std::vector<Entity*> _entities;
+		std::vector<std::unique_ptr<Entity>> _entities;
 		unsigned short _id{0};
 		std::string _name;
 	};

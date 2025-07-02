@@ -46,13 +46,12 @@ namespace platform
 		void terminate();
 
 		void submitTask(const std::function<void()>& task);
-        auto getTime() -> ThreadTime&;
+        static auto getTime() -> ThreadTime&;
 
 	protected:
 		std::thread thread;
 		std::mutex mutex;
 		std::atomic<bool> running{true};
-		ThreadTime time;
 		std::queue<std::function<void()>> workQueue;
 
 		void executeWorkQueue();

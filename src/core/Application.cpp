@@ -1,67 +1,71 @@
 #include "core/Application.h"
 
-#include <memory>
-#include "SDL2/SDL_events.h"
-#include "core/log.h"
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_events.h"
+#include "core/TickThread.h"
+#include "core/log.h"
 #include "graphics/RenderThread.h"
 #include "platform/EventHandler.h"
 #include "platform/ThreadManager.h"
 #include "utils/PerformanceTimer.h"
+#include <memory>
 
 namespace core
 {
 	Application* Application::main{nullptr};
 
 	Application::Application()
-    {
-        es_stopwatch();
+	{
+		es_stopwatch();
 
-        if (main != nullptr)
-        {
-            log_error("an application instance already exists");
-        }
+		if (main != nullptr)
+		{
+			log_error("an application instance already exists");
+		}
 
-        main = this;
+		main = this;
 
-        platform::ThreadManager::addThread<graphics::RenderThread>();
-
-		_init = true;
+		platform::ThreadManager::addThread<graphics::RenderThread>();
+		platform::ThreadManager::addThread<core::TickThread>();
 	}
 
-    auto Application::run() -> bool
-    {
+	auto Application::run() -> bool
+	{
 		SDL_Event e;
-        while (window->isRunning())
-        {
-            SDL_PollEvent(&e);
-            ::internals::handleEvent(e);
-        }
+		while (window->isRunning())
+		{
+			core::time.startMeasure();
 
-        return true;
-    }
+			SDL_PollEvent(&e);
+			::internals::handleEvent(e);
 
-    Application::~Application()
-    {
-        shutdown();
+			core::time.endMeasure();
+		}
+
+		return true;
+	}
+
+	Application::~Application()
+	{
+		shutdown();
 		platform::ThreadManager::shutdown();
 		SDL_DestroyWindow((SDL_Window*)window->getWindowHandle());
-        SDL_Quit();
+		SDL_Quit();
 		log_warn("bye bye!");
 	}
 
 	auto Application::getName() -> std::string
-    {
-        return appName;
-    }
+	{
+		return appName;
+	}
 
-    void Application::setup()
-    {
-        es_stopwatchNamed("presentation setup");
+	void Application::setup()
+	{
+		es_stopwatchNamed("presentation setup");
 
 		{
-            es_stopwatchNamed("platform backend init");
-            
+			es_stopwatchNamed("platform backend init");
+
 			if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_TIMER |
 						 SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC | SDL_INIT_JOYSTICK) <
 				0)
@@ -77,10 +81,17 @@ namespace core
 
 		window->create();
 		platform::ThreadManager::run();
+
+		_init = true;
 	}
 
-    auto Application::getWindow() -> platform::Window*
-    {
-        return window.get();
-    }
+	auto Application::getWindow() -> platform::Window*
+	{
+		return window.get();
+	}
+
+	auto Application::hasInit() const -> bool
+	{
+		return _init;
+	}
 }
