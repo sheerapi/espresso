@@ -1,145 +1,192 @@
 #include <cstdint>
-#include <fcntl.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <sys/stat.h>
 #include <vector>
-#include <zstd.h>
 
-namespace fs = std::filesystem;
-
-struct ManifestEntry
+struct BundleHeader
 {
-	std::string Path;
-	uint64_t Offset;
-	uint64_t CompressedSize;
-	uint64_t UncompressedSize;
-	int64_t CreateTime;
-	int64_t LastAccessTime;
-	int64_t LastWriteTime;
+	char magic[4] = {'B', 'N', 'D', 'L'}; // signature
+	uint8_t version = 1;
+	uint64_t indexOffset{0}; // where the index table starts
+	uint32_t assetCount;
 };
 
-void compressFile(std::ofstream& archive, const fs::path& filePath, int level)
+struct FileEntry
 {
-	std::ifstream file(filePath, std::ios::binary);
-	if (!file)
-	{
-		throw std::runtime_error("can't open input file");
-	}
+	std::string path;
+	uint64_t hash;
+	uint64_t offset;
+	uint64_t uncompressedSize;
+	uint64_t compressedSize;
+	uint8_t compressionType; // 0 = none, 1 = zstd
+};
 
-	ZSTD_CStream* cstream = ZSTD_createCStream();
-	ZSTD_initCStream(cstream, level);
+struct Bundle
+{
+public:
+	std::string path;
+	bool pure{true};
+	std::vector<std::string> contents;
+};
 
-	ZSTD_CCtx_setParameter(cstream, ZSTD_c_windowLog, 23);
+std::filesystem::path inputRoot;
+std::filesystem::path outputRoot;
 
-	const long InBufSize = (long)ZSTD_CStreamInSize();
-	const long OutBufSize = (long)ZSTD_CStreamOutSize();
-	std::vector<char> inBuf(InBufSize);
-	std::vector<char> outBuf(OutBufSize);
+std::vector<Bundle> bundles;
+std::vector<FileEntry> index;
 
-	size_t remaining;
-	do
-	{
-		file.read(inBuf.data(), InBufSize);
-		ZSTD_inBuffer input = {inBuf.data(), static_cast<size_t>(file.gcount()), 0};
-		while (input.pos < input.size)
-		{
-			ZSTD_outBuffer output = {outBuf.data(), static_cast<size_t>(OutBufSize), 0};
-			remaining = ZSTD_compressStream2(cstream, &output, &input, ZSTD_e_continue);
-			archive.write(outBuf.data(), (long)output.pos);
-		}
-	} while (file);
+void createBundle(const std::string& path);
 
-	// Fixed final flush loop
-	ZSTD_inBuffer input = {nullptr, 0, 0}; // Empty input buffer for final flush
-	do
-	{
-		ZSTD_outBuffer output = {outBuf.data(), static_cast<size_t>(OutBufSize), 0};
-		remaining = ZSTD_compressStream2(cstream, &output, &input, ZSTD_e_end);
-		archive.write(outBuf.data(), (long)output.pos);
-	} while (remaining > 0);
+auto createFileEntry(const std::string& path) -> FileEntry
+{
+	FileEntry entry;
+	entry.path = std::filesystem::relative(path, inputRoot).string();
+	entry.hash = std::hash<std::string>{}(entry.path);
 
-	ZSTD_freeCStream(cstream);
+	struct stat fileStat;
+	stat(path.c_str(), &fileStat);
+
+	entry.uncompressedSize = fileStat.st_size;
+	entry.compressionType = 0;
+	entry.compressedSize = entry.uncompressedSize;
+	return entry;
 }
 
-void compressDirectory(const fs::path& inputDir, const fs::path& outputFile,
-					   int level = 3)
+void writeBundle(const Bundle& bundle)
 {
-	std::ofstream archive(outputFile, std::ios::binary);
-	archive.write("EAPK\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
-				  sizeof(uint64_t) * 3); // Header placeholder
+	std::ofstream bundleFile(bundle.path, std::ios::binary | std::ios::out);
+	long indexOffsetPos;
 
-	std::vector<ManifestEntry> manifest;
+	BundleHeader header;
+	header.assetCount = bundle.contents.size();
 
-	for (const auto& entry : fs::recursive_directory_iterator(inputDir))
+	bundleFile.write(header.magic, sizeof(header.magic));
+	bundleFile.write(reinterpret_cast<const char*>(&header.version),
+					 sizeof(header.version));
+	indexOffsetPos = bundleFile.tellp();
+
+	bundleFile.write(reinterpret_cast<const char*>(&header.indexOffset),
+					 sizeof(header.indexOffset));
+	bundleFile.write(reinterpret_cast<const char*>(&header.assetCount),
+					 sizeof(header.assetCount));
+
+	index.clear();
+	index.reserve(header.assetCount);
+
+	for (const auto& file : bundle.contents)
 	{
-		if (entry.is_regular_file())
+		auto entry = createFileEntry(file);
+		entry.offset = bundleFile.tellp();
+
+		std::ifstream fileStream(file, std::ios::binary | std::ios::in);
+		char buffer[4096];
+
+		while (fileStream.read(buffer, sizeof(buffer)))
 		{
-			fs::path relPath = fs::relative(entry.path(), inputDir);
-			uint64_t offset = static_cast<uint64_t>(archive.tellp());
-			struct statx s;
-			statx(AT_FDCWD, entry.path().c_str(), 0, STATX_BASIC_STATS | STATX_BTIME, &s);
-
-			compressFile(archive, entry.path(), level);
-			uint64_t compressedSize = static_cast<uint64_t>(archive.tellp()) - offset;
-
-			manifest.push_back({relPath.string(), offset, compressedSize, s.stx_size,
-								s.stx_btime.tv_sec, s.stx_atime.tv_sec,
-								s.stx_mtime.tv_sec});
+			bundleFile.write(buffer, sizeof(buffer));
 		}
+
+		if (fileStream.gcount() > 0)
+		{
+			bundleFile.write(buffer, fileStream.gcount());
+		}
+
+		index.push_back(entry);
 	}
 
-	// Serialize manifest
-	std::stringstream manifestStream;
-	uint32_t count = manifest.size();
-	manifestStream.write(reinterpret_cast<char*>(&count), sizeof(count));
+	header.indexOffset = bundleFile.tellp();
 
-	for (const auto& entry : manifest)
+	for (const auto& entry : index)
 	{
-		uint16_t len = entry.Path.size();
-		manifestStream.write(reinterpret_cast<const char*>(&len), sizeof(len));
-		manifestStream.write(entry.Path.data(), len);
-		manifestStream.write(reinterpret_cast<const char*>(&entry.Offset),
-							 sizeof(entry.Offset));
-		manifestStream.write(reinterpret_cast<const char*>(&entry.CompressedSize),
-							 sizeof(entry.CompressedSize));
-		manifestStream.write(reinterpret_cast<const char*>(&entry.UncompressedSize),
-							 sizeof(entry.UncompressedSize));
-		manifestStream.write(reinterpret_cast<const char*>(&entry.CreateTime),
-							 sizeof(entry.CreateTime));
-		manifestStream.write(reinterpret_cast<const char*>(&entry.LastAccessTime),
-							 sizeof(entry.LastAccessTime));
-		manifestStream.write(reinterpret_cast<const char*>(&entry.LastWriteTime),
-							 sizeof(entry.LastWriteTime));
+		auto strSize = (short)entry.path.size();
+
+		bundleFile.write(reinterpret_cast<const char*>(&strSize),
+						 sizeof(strSize));
+		bundleFile.write(reinterpret_cast<const char*>(entry.path.c_str()),
+						 entry.path.size());
+		bundleFile.write(reinterpret_cast<const char*>(&entry.hash), sizeof(entry.hash));
+		bundleFile.write(reinterpret_cast<const char*>(&entry.offset),
+						 sizeof(entry.offset));
+		bundleFile.write(reinterpret_cast<const char*>(&entry.uncompressedSize),
+						 sizeof(entry.uncompressedSize));
+		bundleFile.write(reinterpret_cast<const char*>(&entry.compressedSize),
+						 sizeof(entry.compressedSize));
+		bundleFile.write(reinterpret_cast<const char*>(&entry.compressionType),
+						 sizeof(entry.compressionType));
 	}
 
-	std::string manifestData = manifestStream.str();
-	size_t compressedSize = ZSTD_compressBound(manifestData.size());
-	std::vector<char> compressedManifest(compressedSize);
-	compressedSize = ZSTD_compress(compressedManifest.data(), compressedSize,
-								   manifestData.data(), manifestData.size(), level);
+	bundleFile.seekp(indexOffsetPos);
+	bundleFile.write(reinterpret_cast<const char*>(&header.indexOffset),
+					 sizeof(header.indexOffset));
 
-	// Write manifest and update header
-	uint64_t manifestOffset = archive.tellp();
-	archive.write(compressedManifest.data(), (long)compressedSize);
-
-	archive.seekp(0);
-	archive.write("EAPK", sizeof("EAPK"));
-	archive.write(reinterpret_cast<char*>(&manifestOffset), sizeof(manifestOffset));
-	archive.write(reinterpret_cast<char*>(&compressedSize), sizeof(compressedSize));
+	bundleFile.close();
 }
 
-auto main(int argc, char** argv) -> int
+auto main(int argc, const char** argv) -> int
 {
 	if (argc < 2)
 	{
-		std::cerr << "usage: eapkc <input_directory>" << '\n';
+		std::cout << "expected at least 1 argument\n";
 		return 1;
 	}
 
-	compressDirectory(argv[1], "assets.eapk", 10);
+	inputRoot = std::filesystem::canonical(std::string(argv[1]));
+	outputRoot = std::filesystem::path(inputRoot.stem());
+
+	if (argc >= 3)
+	{
+		outputRoot = std::filesystem::canonical(std::string(argv[2]));
+	}
+
+	createBundle(inputRoot);
+
+	for (auto& bundle : bundles)
+	{
+		writeBundle(bundle);
+	}
+
 	return 0;
+}
+
+void createBundle(const std::string& path)
+{
+	Bundle bundle;
+
+	for (const auto& entry : std::filesystem::directory_iterator(path))
+	{
+		if (entry.is_directory())
+		{
+			bundle.pure = false;
+			createBundle(entry.path()); // Recurse
+		}
+		else
+		{
+			bundle.contents.push_back(entry.path().string());
+		}
+	}
+
+	// done to basically transpose the base folder structure into the current folder
+	// to not clutter the asset folder with bundles
+	std::filesystem::path relative = std::filesystem::relative(path, inputRoot);
+	std::filesystem::path outputPath = outputRoot / relative;
+
+	if (bundle.pure)
+	{
+		outputPath += ".bundle";
+	}
+	else
+	{
+		outputPath /= "_.bundle";
+	}
+
+	std::filesystem::create_directories(outputPath.parent_path()); // ensure folders exist
+
+	bundle.path = outputPath.string();
+
+	if (bundle.contents.size() > 0)
+	{
+		bundles.push_back(bundle);
+	}
 }
