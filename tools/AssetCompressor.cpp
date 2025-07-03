@@ -8,7 +8,7 @@
 struct BundleHeader
 {
 	char magic[4] = {'B', 'N', 'D', 'L'}; // signature
-	uint8_t version = 1;
+	uint8_t version = 2;
 	uint64_t indexOffset{0}; // where the index table starts
 	uint32_t assetCount;
 };
@@ -102,8 +102,7 @@ void writeBundle(const Bundle& bundle)
 	{
 		auto strSize = (short)entry.path.size();
 
-		bundleFile.write(reinterpret_cast<const char*>(&strSize),
-						 sizeof(strSize));
+		bundleFile.write(reinterpret_cast<const char*>(&strSize), sizeof(strSize));
 		bundleFile.write(reinterpret_cast<const char*>(entry.path.c_str()),
 						 entry.path.size());
 		bundleFile.write(reinterpret_cast<const char*>(&entry.hash), sizeof(entry.hash));

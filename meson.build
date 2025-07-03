@@ -35,7 +35,6 @@ dependencies = [
 	dependency('sdl2'),
 	dependency('glad'),
 	dependency('luajit'),
-	dependency('physfs'),
 	dependency('libzstd')
 ]
 

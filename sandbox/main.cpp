@@ -3,28 +3,22 @@
 #include "core/Entity.h"
 #include "core/EntryPoint.h"
 #include "core/Scene.h"
-#include <random>
+#include "platform/AssetManager.h"
+#include <memory>
 
-class TestComponent : public core::Component
+class TestProcessor : public core::AssetProcessor
 {
 public:
-    float velocity;
-    volatile float position;
-    float acceleration{0.1F};
-
-    float lastTime;
-
-    void update() override
+    auto canLoad(const std::string &extension) -> bool override
     {
-        velocity += acceleration * core::time.getDelta();
-        getTransform()->position.X += velocity * core::time.getDelta();
+        return true;
+    }
 
-		if (getID() == 1 && core::time.getElapsed() - lastTime >= 1.F)
-		{
-			log_info("%f %f", position, core::time.getDelta());
-			lastTime = core::time.getElapsed();
-		}
-	}
+    auto load(char *data, unsigned long size) -> std::shared_ptr<core::Asset> override
+    {
+        log_info("receiving %d bytes of data", size);
+        return std::make_shared<core::Asset>();
+    }
 };
 
 class SandboxApp : public core::Application
@@ -33,13 +27,10 @@ public:
     void init() override
     {
         appName = "sandbox";
-        auto* scene = new core::Scene("Test Scene");
-        core::Scene::changeScene(scene);
-
-		for (size_t i = 0; i < 50000; i++)
-		{
-			scene->addEntity()->addComponent<TestComponent>();
-		}
+        core::AssetManager::loadFolder("../assets");
+        core::AssetManager::loadBundle("assets");
+        core::AssetManager::registerProcessor<TestProcessor>();
+        core::AssetManager::getAsset("man_computer.png");
 	}
 };
 

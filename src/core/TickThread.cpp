@@ -16,11 +16,6 @@ namespace core
 	void TickThread::update()
 	{
 		Scene::currentScene->tick();
-        if (time.getElapsed() - lastTime >= 1.F)
-        {
-            log_info("%f (%s)", time.getTPS(), Scene::currentScene->getName().c_str());
-            lastTime = time.getElapsed();
-        }
 	}
 
 	void TickThread::shutdown()
