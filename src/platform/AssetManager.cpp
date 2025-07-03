@@ -1,8 +1,7 @@
 #include "platform/AssetManager.h"
-#include "core/EventManager.h"
 #include "core/log.h"
+#include "platform/JobScheduler.h"
 #include "utils/PerformanceTimer.h"
-#include "utils/StringUtils.h"
 #include <filesystem>
 #include <mutex>
 #include <sys/stat.h>
@@ -13,12 +12,33 @@ namespace core
 {
 	void AssetManager::init()
 	{
+		if (std::filesystem::exists("assets"))
+		{
+			loadFolder("assets");
+		}
+
+		if (std::filesystem::exists("../assets"))
+		{
+			loadFolder("../assets");
+		}
+	}
+
+	void AssetManager::shutdown()
+	{
+		clear();
+
+		for (auto& loader : processors)
+		{
+			delete loader;
+		}
+
+		processors.clear();
 	}
 
 	void AssetManager::loadFolder(const std::string& path)
 	{
 		es_stopwatch();
-		
+
 		uint64_t assetCount = 0;
 
 		for (const auto& file : std::filesystem::recursive_directory_iterator(path))
@@ -190,7 +210,9 @@ namespace core
 		{
 			if (loader->canLoad(std::filesystem::path(entry.path).extension()))
 			{
-				loadedAssets[entry.path] = loader->load(buffer, entry.uncompressedSize);
+				loadedAssets[entry.path] = loader->getDefaultAsset();
+				::internals::JobScheduler::submit(
+					[=]() { loader->load(buffer, entry.uncompressedSize); });
 				return {loadedAssets[entry.path]};
 			}
 		}
@@ -203,8 +225,9 @@ namespace core
 		std::lock_guard<std::mutex> lock(mutex);
 		auto bundlePath = entry.bundlePath;
 
-		std::ifstream file((std::filesystem::path(bundlePath.substr(1)) / entry.path).string(),
-						   std::ios::binary);
+		std::ifstream file(
+			(std::filesystem::path(bundlePath.substr(1)) / entry.path).string(),
+			std::ios::binary);
 
 		if (!file)
 		{
@@ -225,7 +248,9 @@ namespace core
 		{
 			if (loader->canLoad(std::filesystem::path(entry.path).extension()))
 			{
-				loadedAssets[entry.path] = loader->load(buffer, entry.uncompressedSize);
+				loadedAssets[entry.path] = loader->getDefaultAsset();
+				::internals::JobScheduler::submit(
+					[=]() { loader->load(buffer, entry.uncompressedSize); });
 				return {loadedAssets[entry.path]};
 			}
 		}

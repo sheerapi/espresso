@@ -24,7 +24,8 @@ sources = [
 	'src/utils/PerformanceTimer.cpp',
 	'src/core/Scene.cpp',
 	'src/core/TickThread.cpp',
-	'src/core/Transform.cpp'
+	'src/core/Transform.cpp',
+	'src/platform/JobScheduler.cpp'
 ]
 
 if get_option('debug')

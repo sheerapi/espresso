@@ -5,9 +5,11 @@
 #include "core/TickThread.h"
 #include "core/log.h"
 #include "graphics/RenderThread.h"
+#include "platform/AssetManager.h"
 #include "platform/EventHandler.h"
 #include "platform/ThreadManager.h"
 #include "utils/PerformanceTimer.h"
+#include "platform/JobScheduler.h"
 #include <memory>
 
 namespace core
@@ -24,6 +26,9 @@ namespace core
 		}
 
 		main = this;
+
+		::internals::JobScheduler::init();
+		AssetManager::init();
 
 		platform::ThreadManager::addThread<graphics::RenderThread>();
 		platform::ThreadManager::addThread<core::TickThread>();
@@ -51,6 +56,7 @@ namespace core
 		platform::ThreadManager::shutdown();
 		SDL_DestroyWindow((SDL_Window*)window->getWindowHandle());
 		SDL_Quit();
+		::internals::JobScheduler::shutdown();
 		log_warn("bye bye!");
 	}
 
