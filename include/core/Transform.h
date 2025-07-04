@@ -40,6 +40,12 @@ namespace core
 		[[nodiscard]] auto getRotation() const -> math::Quaternion;
 		void setRotation(const math::Quaternion& rotation);
 
+		[[nodiscard]] auto getLocalEulerAngles() const -> math::Vector3;
+		void setLocalEulerAngles(const math::Vector3& rotation);
+
+		[[nodiscard]] auto getEulerAngles() const -> math::Vector3;
+		void setEulerAngles(const math::Vector3& rotation);
+
 		[[nodiscard]] auto getLossyScale()
 			const -> math::Vector3; // "Lossy" because non-uniform scaling complicates extraction
 
@@ -60,6 +66,10 @@ namespace core
 		[[nodiscard]] auto inverseTransformDirection(const math::Vector3& direction) const -> math::Vector3;
 		[[nodiscard]] auto inverseTransformPoint(const math::Vector3& point) -> math::Vector3;
 
+		auto getLocalMatrix() -> math::Matrix4;
+		auto getParentWorldMatrix() -> math::Matrix4;
+		auto getWorldMatrix() -> math::Matrix4;
+
 	private:
 		math::Vector3 _localPos;
 		math::Quaternion _localRot;
@@ -73,10 +83,6 @@ namespace core
 
 		void _markDirty();
 		void _recomputeWorldMatrix();
-
-		auto _getLocalMatrix() -> math::Matrix4;
-		auto _getParentWorldMatrix() -> math::Matrix4;
-		auto _getWorldMatrix() -> math::Matrix4;
 
 		friend class core::Entity;
 	};

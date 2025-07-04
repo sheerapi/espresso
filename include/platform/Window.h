@@ -1,5 +1,6 @@
 #pragma once
 #include "SDL2/SDL_video.h"
+#include "utils/math/Vector2.h"
 #include <string>
 
 namespace platform
@@ -12,16 +13,19 @@ namespace platform
 		
 		void create();
 
-		auto isRunning() const -> bool;
+		[[nodiscard]] auto isRunning() const -> bool;
 
 		void setTitle(const std::string& title);
 		void setSize(int width, int height);
 		void setMinSize(int width, int height);
 		void setMaxSize(int width, int height);
 
+		[[nodiscard]] auto getSize() const -> math::Vector2;
+		[[nodiscard]] auto getPosition() const -> math::Vector2;
+
 		void toggleFullscreen();
 		void toggleVsync();
-		auto getVsync() const -> bool;
+		[[nodiscard]] auto getVsync() const -> bool;
 
 		void close();
 

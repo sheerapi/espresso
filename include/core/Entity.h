@@ -4,10 +4,8 @@
 #include "core/Transform.h"
 #include <algorithm>
 #include <atomic>
-#include <deque>
 #include <list>
 #include <memory>
-#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -20,7 +18,7 @@ namespace core
 	class Entity : public std::enable_shared_from_this<Entity>
 	{
 	public:
-		Entity(std::string name = "Entity", char entityTag = 0)
+		Entity(std::string name = "Entity", unsigned char entityTag = 0)
 			: _entityName(std::move(name)), _entityTag(entityTag), _entityID(++entity_id)
 		{
 		}
@@ -126,7 +124,7 @@ namespace core
 			child->_parent = this;
 			child->_active = true;
 
-			std::lock_guard<std::mutex> lock(_childrenMutex);
+			
 			_children.push_back(std::shared_ptr<Entity>(child));
 			return child;
 		}
@@ -136,7 +134,7 @@ namespace core
 			entity->_parent = this;
 			entity->_active = true;
 
-			std::lock_guard<std::mutex> lock(_childrenMutex);
+			
 			_children.push_back(std::shared_ptr<Entity>(entity));
 			return entity;
 		}
@@ -146,7 +144,7 @@ namespace core
 			if (child->isOrphan() && !isDescendant(child.get()))
 			{
 				child->_parent = this;
-				std::lock_guard<std::mutex> lock(_childrenMutex);
+				
 				_children.push_back(child);
 			}
 			else
@@ -179,7 +177,7 @@ namespace core
 			return nullptr;
 		}
 
-		auto getChildren(char entityTag) const -> std::vector<Entity*>
+		auto getChildren(unsigned char entityTag) const -> std::vector<Entity*>
 		{
 			std::vector<Entity*> children;
 			for (const auto& child : _children)
@@ -194,7 +192,7 @@ namespace core
 
 		void removeChild(Entity* child)
 		{
-			std::lock_guard<std::mutex> lock(_childrenMutex);
+			
 			_children.remove_if(
 				[child](const auto& c)
 				{
@@ -209,7 +207,7 @@ namespace core
 
 		void removeChild(unsigned int id)
 		{
-			std::lock_guard<std::mutex> lock(_childrenMutex);
+			
 			_children.remove_if(
 				[id](const auto& child)
 				{
@@ -224,7 +222,7 @@ namespace core
 
 		void removeChild(const std::string& name)
 		{
-			std::lock_guard<std::mutex> lock(_childrenMutex);
+			
 			_children.remove_if(
 				[&name](const auto& child)
 				{
@@ -239,7 +237,7 @@ namespace core
 
 		void removeChildren(char entityTag)
 		{
-			std::lock_guard<std::mutex> lock(_childrenMutex);
+			
 			_children.remove_if(
 				[entityTag](const auto& child)
 				{
@@ -420,15 +418,13 @@ namespace core
 		Entity* _parent{nullptr};
 		std::string _entityName;
 		Scene* _scene{nullptr};
-		bool _active{true};
-		bool _visible{true};
 		unsigned char _entityTag{0};
 		unsigned int _entityID{0};
-		std::mutex _childrenMutex;
+		bool _active{true};
+		bool _visible{true};
 
 		void _removeChildPriv(Entity* child)
 		{
-			std::lock_guard<std::mutex> lock(_childrenMutex);
 			_children.remove_if(
 				[child](const auto& c)
 				{

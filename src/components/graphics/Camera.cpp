@@ -3,6 +3,7 @@
 #include "core/Scene.h"
 #include "utils/math/Matrix4.h"
 #include "utils/math/Vector2.h"
+#include "utils/math/Vector3.h"
 
 namespace core
 {
@@ -15,13 +16,18 @@ namespace core
 
 		if (_dirty)
 		{
+			_view = math::Matrix4::lookAt(getTransform()->getPosition(),
+										  getTransform()->getPosition() +
+											  getTransform()->forward(),
+										  math::Vector3::up());
+
 			_verticalFov = 2.0F * std::atan(sensorSize.y / (2.0F * focalLength));
 			_horizontalFov = 2.0F * std::atan(sensorSize.x / (2.0F * focalLength));
 			_sensorAspect = sensorSize.x / sensorSize.y;
 
 			auto fovAspect = _calculateFieldOfView();
-            auto fovY = fovAspect.x;
-            auto sensorAspect = fovAspect.y;
+			auto fovY = fovAspect.x;
+			auto sensorAspect = fovAspect.y;
 
 			// apply lens shift
 			float top = near * std::tan(fovY / 2.0F) * (1.0F - 2.0F * lensShift.y);
@@ -72,15 +78,15 @@ namespace core
 		return {fovY, aspect};
 	}
 
-    void Camera::onEnable()
-    {
+	void Camera::onEnable()
+	{
+		Scene::currentScene->registerCamera(this);
+	}
 
-    }
-
-    void Camera::onDisable()
-    {
-
-    }
+	void Camera::onDisable()
+	{
+		Scene::currentScene->unregisterCamera(this);
+	}
 
 	auto Camera::getProjectionType() const -> ProjectionType
 	{
@@ -182,6 +188,11 @@ namespace core
 
 	void Camera::setViewportSize(math::Vector2 viewport)
 	{
+        if (viewportSize == viewport)
+        {
+            return;
+        }
+        
 		viewportSize = viewport;
 		_dirty = true;
 	}

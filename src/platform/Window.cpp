@@ -169,4 +169,14 @@ namespace platform
 	{
 		return _vsync;
 	}
+
+	auto Window::getSize() const -> math::Vector2
+	{
+		return {(float)_width, (float)_height};
+	}
+
+	auto Window::getPosition() const -> math::Vector2
+	{
+		return {(float)_xPos, (float)_yPos};
+	}
 }

@@ -80,6 +80,7 @@ namespace core
 		bool _dirty{true};
 
 		math::Matrix4 _projection;
+		math::Matrix4 _view;
 
 		// calculates the new field of view and aspect
         // based on gate fit

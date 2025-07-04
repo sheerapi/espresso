@@ -182,14 +182,14 @@ namespace core
 			return;
 		}
 
-		_worldMatrix = _getParentWorldMatrix() * _getLocalMatrix();
+		_worldMatrix = getParentWorldMatrix() * getLocalMatrix();
 		_cachedWorldPos = math::Vector3(_worldMatrix.data[0][3], _worldMatrix.data[1][3],
 										_worldMatrix.data[2][3]);
 		_cachedWorldRot = _worldMatrix.getRotation();
 		_dirty = false;
 	}
 
-	auto Transform::_getLocalMatrix() -> math::Matrix4
+	auto Transform::getLocalMatrix() -> math::Matrix4
 	{
 		auto translation = math::Matrix4::translation(_localPos);
 		auto rotation = math::Matrix4::rotation(_localRot);
@@ -198,17 +198,47 @@ namespace core
 		return math::Matrix4::multiply({translation, rotation, scaling});
 	}
 
-	auto Transform::_getParentWorldMatrix() -> math::Matrix4
+	auto Transform::getParentWorldMatrix() -> math::Matrix4
 	{
 		if (!_entity->isOrphan())
 		{
-			return _entity->getParent()->transform._getWorldMatrix();
+			return _entity->getParent()->transform.getWorldMatrix();
 		}
 		return {};
 	}
 
-	auto Transform::_getWorldMatrix() -> math::Matrix4
+	auto Transform::getWorldMatrix() -> math::Matrix4
 	{
 		return _worldMatrix;
+	}
+
+	[[nodiscard]] auto Transform::getLocalEulerAngles() const -> math::Vector3
+	{
+		return _localRot.toEuler();
+	}
+
+	void Transform::setLocalEulerAngles(const math::Vector3& rotation)
+	{
+		_localRot = math::Quaternion::fromEuler(rotation);
+		_markDirty();
+	}
+
+	[[nodiscard]] auto Transform::getEulerAngles() const -> math::Vector3
+	{
+		return _cachedWorldRot.toEuler();
+	}
+
+	void Transform::setEulerAngles(const math::Vector3& rotation)
+	{
+		if (Entity* parent = _entity->getParent())
+		{
+			math::Quaternion parentRot = parent->transform.getRotation();
+			_localRot = parentRot.inverse() * math::Quaternion::fromEuler(rotation);
+		}
+		else
+		{
+			_localRot = math::Quaternion::fromEuler(rotation);
+		}
+		_markDirty();
 	}
 }

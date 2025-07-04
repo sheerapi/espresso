@@ -1,8 +1,8 @@
 #pragma once
 #include "components/graphics/Camera.h"
 #include "core/Component.h"
-#include <string>
 #include "core/Entity.h"
+#include <string>
 #include <vector>
 
 namespace core
@@ -30,6 +30,8 @@ namespace core
 		void registerCamera(Camera* camera);
 		void unregisterCamera(Camera* camera);
 		void requestCameraReorder();
+
+		auto getCameras() -> std::vector<core::Camera*>;
 
 		void tick();
 		void render();

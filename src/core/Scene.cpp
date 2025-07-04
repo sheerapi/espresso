@@ -177,7 +177,7 @@ namespace core
 		_cameras.push_back(camera);
 		std::sort(_cameras.begin(), _cameras.end(), [](Camera* a, Camera* b)
 				  { return a->getRenderOrder() < b->getRenderOrder(); });
-		log_trace("new camera registered on scene");
+		log_trace("new camera registered on scene %s", _name.c_str());
 	}
 
 	void Scene::unregisterCamera(Camera* camera)
@@ -191,5 +191,10 @@ namespace core
 	{
 		std::sort(_cameras.begin(), _cameras.end(), [](Camera* a, Camera* b)
 				  { return a->getRenderOrder() < b->getRenderOrder(); });
+	}
+
+	auto Scene::getCameras() -> std::vector<core::Camera*>
+	{
+		return _cameras;
 	}
 }
