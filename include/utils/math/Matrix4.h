@@ -1,6 +1,7 @@
 #pragma once
-#include "cglm/affine-pre.h"
 #include "cglm/affine.h"
+#include "cglm/affine-pre.h"
+
 #include "cglm/cam.h"
 #include "utils/math/Quaternion.h"
 #define CGLM_FORCE_LEFT_HANDED 1
@@ -245,6 +246,13 @@ namespace math
 		auto perspectiveAspect() -> float
 		{
 			return glm_persp_aspect(raw);
+		}
+
+		auto getRotation() -> Quaternion
+		{
+			Quaternion result;
+			glm_mat4_quat(raw, result);
+			return result;
 		}
 	};
 }

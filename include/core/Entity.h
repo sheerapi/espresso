@@ -333,6 +333,17 @@ namespace core
 			return _scene;
 		}
 
+		auto getChildren() -> std::vector<Entity*>
+		{
+			std::vector<Entity*> result;
+			for (auto& child : _children)
+			{
+				result.push_back(child.get());
+			}
+
+			return result;
+		}
+
 		void tick()
 		{
 			transform.update();
@@ -383,6 +394,8 @@ namespace core
 
 		void start()
 		{
+			transform._entity = this;
+			
 			if (_active)
 			{
 				for (const auto& component : _components)

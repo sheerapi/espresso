@@ -90,10 +90,17 @@ namespace math
 			return result;
 		}
 
+		auto operator-(Vector3 b) -> Vector3
+		{
+			Vector3 result;
+			glm_vec3_sub(raw, b, result);
+			return result;
+		}
+
 		auto operator-(float b) -> Vector3
 		{
 			Vector3 result;
-			glm_vec3_adds(raw, b, result);
+			glm_vec3_subs(raw, b, result);
 			return result;
 		}
 
@@ -323,6 +330,46 @@ namespace math
 		auto operator>(float b) -> bool
 		{
 			return magnitudeSquared() > (b * b);
+		}
+
+		static auto up() -> Vector3
+		{
+			return {0.0F, 1.0F, 0.0F};
+		}
+
+		static auto down() -> Vector3
+		{
+			return {0.0F, -1.0F, 0.0F};
+		}
+
+		static auto left() -> Vector3
+		{
+			return {-1.0F, 0.0F, 0.0F};
+		}
+
+		static auto right() -> Vector3
+		{
+			return {1.0F, 0.0F, 0.0F};
+		}
+
+		static auto forward() -> Vector3
+		{
+			return {0.0F, 0.0F, 1.0F};
+		}
+
+		static auto backward() -> Vector3
+		{
+			return {0.0F, 0.0F, -1.0F};
+		}
+
+		static auto zero() -> Vector3
+		{
+			return {0.0F, 0.0F, 0.0F};
+		}
+
+		static auto one() -> Vector3
+		{
+			return {1.0F, 1.0F, 1.0F};
 		}
 	};
 }
