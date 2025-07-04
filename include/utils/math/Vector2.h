@@ -1,189 +1,296 @@
 #pragma once
+#include "cglm/types.h"
+#include "cglm/vec2.h"
 
-#include <algorithm>
-#include <cmath>
 namespace math
 {
 	struct Vector2
 	{
-	public:
-		float x;
-		float y;
-
-		Vector2() : x(0.0F), y(0.0F) {};
-		Vector2(float x, float y) : x(x), y(y) {};
-
-		auto operator+(const Vector2& other) const -> Vector2
+		union
 		{
-			return {x + other.x, y + other.y};
-		}
-
-		auto operator-(const Vector2& other) const -> Vector2
-		{
-			return {x - other.x, y - other.y};
-		}
-
-		auto operator*(const Vector2& other) const -> Vector2
-		{
-			return {x * other.x, y * other.y};
-		}
-
-		auto operator/(const Vector2& other) const -> Vector2
-		{
-			return {x / other.x, y / other.y};
-		}
-
-		auto operator+(float scalar) const -> Vector2
-		{
-			return {x + scalar, y + scalar};
-		}
-
-		auto operator-(float scalar) const -> Vector2
-		{
-			return {x - scalar, y - scalar};
-		}
-
-		auto operator*(float scalar) const -> Vector2
-		{
-			return {x * scalar, y * scalar};
-		}
-
-		auto operator/(float scalar) const -> Vector2
-		{
-			return {x / scalar, y / scalar};
-		}
-
-		auto operator==(const Vector2& other) const -> bool
-		{
-			return x == other.x && y == other.y;
-		}
-
-		auto operator!=(const Vector2& other) const -> bool
-		{
-			return !(*this == other);
-		}
-
-		auto operator<=(const Vector2& other) const -> bool
-		{
-			return x <= other.x && y <= other.y;
-		}
-
-		auto operator>=(const Vector2& other) const -> bool
-		{
-			return x >= other.x && y >= other.y;
-		}
-
-		[[nodiscard]] auto Negate() const -> Vector2
-		{
-			return {-x, -y};
-		}
-
-		[[nodiscard]] auto Min(const Vector2& b) const -> Vector2
-		{
-			return {std::min(x, b.x), std::min(y, b.y)};
-		}
-
-		[[nodiscard]] auto Max(const Vector2& b) const -> Vector2
-		{
-			return {std::max(x, b.x), std::max(y, b.y)};
-		}
-
-		[[nodiscard]] auto Absolute() const -> Vector2
-		{
-			return {std::abs(x), std::abs(y)};
-		}
-
-		[[nodiscard]] auto Length() const -> float
-		{
-			return std::sqrt(LengthSquared());
-		}
-
-		[[nodiscard]] auto LengthSquared() const -> float
-		{
-			return (x * x) + (y * y);
-		}
-
-		[[nodiscard]] auto Normalized() const -> Vector2
-		{
-			float length = Length();
-			return {x / length, y / length};
-		}
-
-		void Normalize()
-		{
-			float length = Length();
-			x /= length;
-			y /= length;
-		}
-
-		[[nodiscard]] auto Dot(const Vector2& other) const -> float
-		{
-			return (x * other.x) + (y * other.y);
-		}
-
-		[[nodiscard]] auto Angle(const Vector2& other) const -> float
-		{
-			return std::atan2(other.y, other.x) - std::atan2(y, x);
-		}
-
-		[[nodiscard]] auto Lerp(const Vector2& other, float t) const -> Vector2
-		{
-			return {x + ((other.x - x) * t), y + ((other.y - y) * t)};
-		}
-
-		[[nodiscard]] auto Distance(const Vector2& other) const -> float
-		{
-			return std::sqrt(DistanceSquared(other));
-		}
-
-		[[nodiscard]] auto DistanceSquared(const Vector2& other) const -> float
-		{
-			return ((x - other.x) * (x - other.x)) + ((y - other.y) * (y - other.y));
-		}
-
-		[[nodiscard]] auto Reflect(const Vector2& normal) const -> Vector2
-		{
-			return *this - (normal * (2.0F * Dot(normal)));
-		}
-
-		[[nodiscard]] auto Refract(const Vector2& other, float eta) const -> Vector2
-		{
-			float k = 1.0F - ((eta * eta) * (1.0F - (Dot(other) * Dot(other))));
-			if (k < 0.0F)
+			struct
 			{
-				return {0.0F, 0.0F};
-			}
-			return (*this * eta) - (other * ((eta * Dot(other)) + std::sqrt(k)));
+				float x, y;
+			};
+			vec2 raw;
+		};
+
+		Vector2() : raw{0.0F, 0.0F}
+		{
+		}
+		Vector2(float x, float y) : raw{x, y}
+		{
 		}
 
-        static auto Zero() -> Vector2
-        {
-            return {0.0F, 0.0F};
-        }
+		// Implicit conversion to cglm's vec2 if needed
+		operator vec2&()
+		{
+			return raw;
+		}
+		operator const vec2&() const
+		{
+			return raw;
+		}
 
-        static auto One() -> Vector2
-        {
-            return {1.0F, 1.0F};
-        }
+		[[nodiscard]] auto length() const -> float
+		{
+			return glm_vec2_norm(const_cast<vec2&>(raw));
+		}
 
-        static auto Up() -> Vector2
-        {
-            return {0.0F, 1.0F};
-        }
+		[[nodiscard]] auto normalized() const -> Vector2
+		{
+			Vector2 out;
+			glm_vec2_normalize_to(const_cast<vec2&>(raw), out.raw);
+			return out;
+		}
 
-        static auto Down() -> Vector2
-        {
-            return {0.0F, -1.0F};
-        }
+		void normalize()
+		{
+			glm_vec2_normalize(raw);
+		}
 
-        static auto Left() -> Vector2
-        {
-            return {-1.0F, 0.0F};
-        }
+		static auto dot(Vector2 a, Vector2 b) -> float
+		{
+			return glm_vec2_dot(a, b);
+		}
 
-        static auto Right() -> Vector2
-        {
-            return {1.0F, 0.0F};
-        }
+		static auto cross(Vector2 a, Vector2 b) -> float
+		{
+			return glm_vec2_cross(a, b);
+		}
+
+		auto dot(Vector2 other) -> float
+		{
+			return glm_vec2_dot(raw, other);
+		}
+
+		auto cross(Vector2 other) -> float
+		{
+			return glm_vec2_cross(raw, other);
+		}
+
+		auto magnitude() -> float
+		{
+			return glm_vec2_norm(raw);
+		}
+
+		auto magnitudeSquared() -> float
+		{
+			return glm_vec2_norm2(raw);
+		}
+
+		auto operator +(Vector2 b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_add(raw, b, result);
+			return result;
+		}
+
+		auto operator-(float b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_adds(raw, b, result);
+			return result;
+		}
+
+		auto operator*(Vector2 b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_mul(raw, b, result);
+			return result;
+		}
+
+		auto operator*(float b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_scale(raw, b, result);
+			return result;
+		}
+
+		auto operator/(Vector2 b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_div(raw, b, result);
+			return result;
+		}
+
+		auto operator/(float b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_divs(raw, b, result);
+			return result;
+		}
+
+		void operator+=(Vector2 b)
+		{
+			x += b.x;
+			y += b.y;
+		}
+
+		void operator-=(Vector2 b)
+		{
+			x -= b.x;
+			y -= b.y;
+		}
+
+		void operator*=(Vector2 b)
+		{
+			x *= b.x;
+			y *= b.y;
+		}
+
+		void operator*=(float b)
+		{
+			x *= b;
+			y *= b;
+		}
+
+		void operator/=(Vector2 b)
+		{
+			x /= b.x;
+			y /= b.y;
+		}
+
+		void operator/=(float b)
+		{
+			x /= b;
+			y /= b;
+		}
+
+		void negate()
+		{
+			glm_vec2_negate(raw);
+		}
+
+		[[nodiscard]] auto negated() const -> Vector2
+		{
+			Vector2 out;
+			glm_vec2_negate_to(const_cast<vec2&>(raw), out.raw);
+			return out;
+		}
+
+		void rotate(float angle)
+		{
+			glm_vec2_rotate(raw, angle, raw);
+		}
+
+		[[nodiscard]] auto rotated(float angle) const -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_rotate(const_cast<vec2&>(raw), angle, result);
+			return result;
+		}
+
+		static auto center(Vector2 a, Vector2 b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_center(a, b, result);
+			return result;
+		}
+
+		static auto distance(Vector2 a, Vector2 b) -> float
+		{
+			return glm_vec2_distance(a, b);
+		}
+
+		static auto distanceSquared(Vector2 a, Vector2 b) -> float
+		{
+			return glm_vec2_distance2(a, b);
+		}
+
+		[[nodiscard]] auto distance(Vector2 b) const -> float
+		{
+			return glm_vec2_distance(const_cast<vec2&>(raw), b);
+		}
+
+		[[nodiscard]] auto distanceSquared(Vector2 b) const -> float
+		{
+			return glm_vec2_distance2(const_cast<vec2&>(raw), b);
+		}
+
+		static auto max(Vector2 a, Vector2 b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_maxv(a, b, result);
+			return result;
+		}
+
+		static auto min(Vector2 a, Vector2 b) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_minv(a, b, result);
+			return result;
+		}
+
+		void clamp(float min, float max)
+		{
+			glm_vec2_clamp(raw, min, max);
+		}
+
+		static auto lerp(Vector2 a, Vector2 b, float t) -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_lerp(a, b, t, result);
+			return result;
+		}
+
+		void lerp(Vector2 b, float t)
+		{
+			glm_vec2_lerp(raw, b, t, raw);
+		}
+
+		void reflect(Vector2 normal)
+		{
+			glm_vec2_reflect(raw, normal, raw);
+		}
+
+		[[nodiscard]] auto reflected(Vector2 normal) const -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_reflect(const_cast<vec2&>(raw), normal.normalized(), result);
+			return result;
+		}
+
+		void refract(Vector2 normal, float eta)
+		{
+			glm_vec2_refract(normalized(), normal.normalized(), eta, raw);
+		}
+
+		[[nodiscard]] auto refracted(Vector2 normal, float eta) const -> Vector2
+		{
+			Vector2 result;
+			glm_vec2_refract(normalized(), normal.normalized(), eta, result);
+			return result;
+		}
+
+		auto operator==(Vector2 b) -> bool
+		{
+			return glm_vec2_eqv(raw, b);
+		}
+
+		auto operator!=(Vector2 b) -> bool
+		{
+			return !glm_vec2_eqv(raw, b);
+		}
+
+		auto operator==(float b) -> bool
+		{
+			return glm_vec2_eq(raw, b);
+		}
+
+		auto operator!=(float b) -> bool
+		{
+			return !glm_vec2_eq(raw, b);
+		}
+
+		auto operator<(float b) -> bool
+		{
+			return magnitudeSquared() < (b * b);
+		}
+
+		auto operator>(float b) -> bool
+		{
+			return magnitudeSquared() > (b * b);
+		}
 	};
 }

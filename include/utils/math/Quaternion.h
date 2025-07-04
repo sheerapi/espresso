@@ -1,17 +1,23 @@
 #pragma once
+#define CGLM_FORCE_LEFT_HANDED 1
 #include <cmath>
 #include "utils/math/Vector3.h"
 #include "utils/math/Vector4.h"
+#include "cglm/quat.h"
 
 namespace math
 {
 	struct Quaternion
 	{
 	public:
-		float x;
-		float y;
-		float z;
-		float w;
+		union
+		{
+			struct
+			{
+				float x, y, z, w;
+			};
+			versor raw;
+		};
 
 		Quaternion() : x(0.0F), y(0.0F), z(0.0F), w(1.0F) {};
 		Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
@@ -27,6 +33,15 @@ namespace math
 
 		Quaternion(const Vector4& vec4) : x(vec4.x), y(vec4.y), z(vec4.z), w(vec4.w) {};
 
+		operator versor&()
+		{
+			return raw;
+		}
+		operator const versor&() const
+		{
+			return raw;
+		}
+
 		auto operator+(const Quaternion& other) const -> Quaternion
 		{
 			return {x + other.x, y + other.y, z + other.z, w + other.w};
@@ -37,12 +52,11 @@ namespace math
 			return {x - other.x, y - other.y, z - other.z, w - other.w};
 		}
 
-		auto operator*(const Quaternion& other) const -> Quaternion
+		auto operator*(Quaternion other) const -> Quaternion
 		{
-			return {(w * other.x) + (x * other.w) + (y * other.z) - (z * other.y),
-					(w * other.y) + (y * other.w) + (z * other.x) - (x * other.z),
-					(w * other.z) + (z * other.w) + (x * other.y) - (y * other.x),
-					(w * other.w) - (x * other.x) - (y * other.y) - (z * other.z)};
+			Quaternion result;
+			glm_quat_mul(const_cast<versor&>(raw), other, result);
+			return result;
 		}
 
 		auto operator*(const Vector3& vec) const -> Vector3
@@ -75,73 +89,72 @@ namespace math
 			return !(*this == other);
 		}
 
-		[[nodiscard]] auto Length() const -> float
+		[[nodiscard]] auto length() const -> float
 		{
-			return std::sqrt((x * x) + (y * y) + (z * z) + (w * w));
+			return glm_quat_norm(const_cast<versor&>(raw));
 		}
 
-		[[nodiscard]] auto LengthSquared() const -> float
+		[[nodiscard]] auto lengthSquared() const -> float
 		{
-			return (x * x) + (y * y) + (z * z) + (w * w);
+			return length() * length();
 		}
 
-		[[nodiscard]] auto Normalized() const -> Quaternion
+		[[nodiscard]] auto normalized() const -> Quaternion
 		{
-			float len = Length();
-			if (len == 0.0F)
-			{
-				return {0.0F, 0.0F, 0.0F, 1.0F};
-			}
-			return {x / len, y / len, z / len, w / len};
-		}
-		[[nodiscard]] auto Conjugate() const -> Quaternion
-		{
-			return {-x, -y, -z, w};
+			Quaternion result;
+			glm_quat_normalize_to(const_cast<versor&>(raw), result);
+			return result;
 		}
 
-		[[nodiscard]] auto Inverse() const -> Quaternion
+		void normalize()
 		{
-			float len = LengthSquared();
-			if (len == 0.0F)
-			{
-				return {0.0F, 0.0F, 0.0F, 1.0F};
-			}
-			return {-x / len, -y / len, -z / len, w / len};
+			glm_quat_normalize(raw);
 		}
 
-		[[nodiscard]] auto ToVector4() const -> Vector4
+		[[nodiscard]] auto conjugate() const -> Quaternion
+		{
+			Quaternion result;
+			glm_quat_conjugate(const_cast<versor&>(raw), result);
+			return result;
+		}
+
+		[[nodiscard]] auto inverse() const -> Quaternion
+		{
+			Quaternion result;
+			glm_quat_inv(const_cast<versor&>(raw), result);
+			return result;
+		}
+
+		[[nodiscard]] auto toVector4() const -> Vector4
 		{
 			return {x, y, z, w};
 		}
 
-		[[nodiscard]] auto Dot(const Quaternion& other) const -> float
+		[[nodiscard]] auto dot(Quaternion other) const -> float
 		{
-			return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w);
+			return glm_quat_dot(const_cast<versor&>(raw), other);
 		}
 
-		[[nodiscard]] auto Angle() const -> float
+		static auto dot(Quaternion a, Quaternion b) -> float
 		{
-			return std::atan2(std::sqrt((x * x) + (y * y) + (z * z)), w);
+			return glm_quat_dot(a, b);
 		}
 
-		[[nodiscard]] auto Axis() const -> Vector3
+		[[nodiscard]] auto angle() const -> float
 		{
-			float sinHalfAngle = std::sqrt((x * x) + (y * y) + (z * z));
-			if (sinHalfAngle == 0.0F)
-			{
-				return {1.0F, 0.0F, 0.0F};
-			}
-			return {x / sinHalfAngle, y / sinHalfAngle, z / sinHalfAngle};
+			return glm_quat_angle(const_cast<versor&>(raw));
 		}
 
-		[[nodiscard]] auto AngleAxis() const -> std::pair<float, Vector3>
+		[[nodiscard]] auto axis() const -> Vector3
 		{
-			float angle = Angle();
-			Vector3 axis = Axis();
-			return {angle, axis};
+			Quaternion result;
+			Vector3 imag;
+			glm_quat_axis(const_cast<versor&>(raw), result);
+			glm_quat_imag(result, imag);
+			return imag;
 		}
 
-		[[nodiscard]] auto ToEuler() const -> Vector3
+		[[nodiscard]] auto toEuler() const -> Vector3
 		{
 			constexpr float kRadToDeg = 180.0F / static_cast<float>(M_PI);
 
@@ -169,7 +182,7 @@ namespace math
 
 		// Converts Euler angles (in degrees) to a Quaternion.
 		// The input Vector3 represents rotations in the order: x (roll), y (pitch), z (yaw).
-		static auto FromEuler(const Vector3& euler) -> Quaternion
+		static auto fromEuler(const Vector3& euler) -> Quaternion
 		{
 			constexpr float kDegToRad = static_cast<float>(M_PI / 180.0F);
 
@@ -190,24 +203,76 @@ namespace math
 					(cosRoll * cosPitch * cosyaw) + (sinRoll * sinPitch * sinyaw)};
 		}
 
-		static auto Identity() -> Quaternion
+		static auto identity() -> Quaternion
 		{
 			return {0.0F, 0.0F, 0.0F, 1.0F};
 		}
 
-		static auto Rotationx(float angle) -> Quaternion
+		static auto rotationX(float angle) -> Quaternion
 		{
 			return {std::sin(angle * 0.5F), 0.0F, 0.0F, std::cos(angle * 0.5F)};
 		}
 
-		static auto Rotationy(float angle) -> Quaternion
+		static auto rotationY(float angle) -> Quaternion
 		{
 			return {0.0F, std::sin(angle * 0.5F), 0.0F, std::cos(angle * 0.5F)};
 		}
 
-		static auto Rotationz(float angle) -> Quaternion
+		static auto rotationZ(float angle) -> Quaternion
 		{
 			return {0.0F, 0.0F, std::sin(angle * 0.5F), std::cos(angle * 0.5F)};
+		}
+
+		static auto lerp(Quaternion a, Quaternion b, float t) -> Quaternion
+		{
+			Quaternion result;
+			glm_quat_lerp(a, b, t, result);
+			return result;
+		}
+
+		void lerp(Quaternion b, float t)
+		{
+			glm_quat_lerp(raw, b, t, raw);
+		}
+
+		static auto slerp(Quaternion a, Quaternion b, float t) -> Quaternion
+		{
+			Quaternion result;
+			glm_quat_slerp(a, b, t, result);
+			return result;
+		}
+
+		void slerp(Quaternion b, float t)
+		{
+			glm_quat_slerp(raw, b, t, raw);
+		}
+
+		static auto nlerp(Quaternion a, Quaternion b, float t) -> Quaternion
+		{
+			Quaternion result;
+			glm_quat_nlerp(a, b, t, result);
+			return result;
+		}
+
+		void nlerp(Quaternion b, float t)
+		{
+			glm_quat_nlerp(raw, b, t, raw);
+		}
+
+		
+
+		static auto lookRotation(Vector3 direction, Vector3 up) -> Quaternion
+		{
+			Quaternion result;
+			glm_quat_for(direction, up, result);
+			return result;
+		}
+
+		static auto lookRotation(Vector3 from, Vector3 to, Vector3 up) -> Quaternion
+		{
+			Quaternion result;
+			glm_quat_forp(from, to, up, result);
+			return result;
 		}
 	};
 }

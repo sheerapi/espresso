@@ -1,228 +1,328 @@
 #pragma once
-#include "utils/math/Vector2.h"
-#include <algorithm>
-#include <cmath>
+#include "cglm/types.h"
+#include "cglm/vec3.h"
 
 namespace math
 {
 	struct Vector3
 	{
-	public:
-		float x;
-		float y;
-		float z;
-
-		Vector3() : x(0.0F), y(0.0F), z(0.0F) {};
-		Vector3(float x, float y, float z) : x(x), y(y), z(z) {};
-		Vector3(const Vector2& vec2, float z = 0.0F) : x(vec2.x), y(vec2.y), z(z) {};
-
-		auto operator+(const Vector3& other) const -> Vector3
+		union
 		{
-			return {x + other.x, y + other.y, z + other.z};
+			struct
+			{
+				float x, y, z;
+			};
+			vec3 raw;
+		};
+
+		Vector3() : raw{0.0F, 0.0F}
+		{
+		}
+		Vector3(float x, float y, float z) : raw{x, y, z}
+		{
 		}
 
-		auto operator-(const Vector3& other) const -> Vector3
+		// Implicit conversion to cglm's vec3 if needed
+		operator vec3&()
 		{
-			return {x - other.x, y - other.y, z - other.z};
+			return raw;
+		}
+		operator const vec3&() const
+		{
+			return raw;
 		}
 
-		auto operator*(const Vector3& other) const -> Vector3
+		[[nodiscard]] auto length() const -> float
 		{
-			return {x * other.x, y * other.y, z * other.z};
+			return glm_vec3_norm(const_cast<vec3&>(raw));
 		}
 
-		auto operator/(const Vector3& other) const -> Vector3
+		[[nodiscard]] auto normalized() const -> Vector3
 		{
-			return {x / other.x, y / other.y, z / other.z};
+			Vector3 out;
+			glm_vec3_normalize_to(const_cast<vec3&>(raw), out.raw);
+			return out;
 		}
 
-		auto operator+(float scalar) const -> Vector3
+		void normalize()
 		{
-			return {x + scalar, y + scalar, z + scalar};
+			glm_vec3_normalize(raw);
 		}
 
-		auto operator-(float scalar) const -> Vector3
+		static auto dot(Vector3 a, Vector3 b) -> float
 		{
-			return {x - scalar, y - scalar, z - scalar};
+			return glm_vec3_dot(a, b);
 		}
 
-		auto operator*(float scalar) const -> Vector3
+		static auto cross(Vector3 a, Vector3 b) -> Vector3
 		{
-			return {x * scalar, y * scalar, z * scalar};
+			Vector3 result;
+			glm_vec3_cross(a, b, result);
+			return result;
 		}
 
-		auto operator/(float scalar) const -> Vector3
+		auto dot(Vector3 other) -> float
 		{
-			return {x / scalar, y / scalar, z / scalar};
+			return glm_vec3_dot(raw, other);
 		}
 
-		auto operator==(const Vector3& other) const -> bool
+		auto cross(Vector3 other) -> Vector3
 		{
-			return x == other.x && y == other.y && z == other.z;
+			Vector3 result;
+			glm_vec3_cross(raw, other, result);
+			return result;
 		}
 
-		auto operator!=(const Vector3& other) const -> bool
+		auto magnitude() -> float
 		{
-			return !(*this == other);
+			return glm_vec3_norm(raw);
 		}
 
-		auto operator<=(const Vector3& other) const -> bool
+		auto magnitudeSquared() -> float
 		{
-			return x <= other.x && y <= other.y && z <= other.z;
+			return glm_vec3_norm2(raw);
 		}
 
-		auto operator>=(const Vector3& other) const -> bool
+		auto operator+(Vector3 b) -> Vector3
 		{
-			return x >= other.x && y >= other.y && z >= other.z;
+			Vector3 result;
+			glm_vec3_add(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Negate() const -> Vector3
+		auto operator-(float b) -> Vector3
 		{
-			return {-x, -y, -z};
+			Vector3 result;
+			glm_vec3_adds(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Min(const Vector3& b) const -> Vector3
+		auto operator*(Vector3 b) -> Vector3
 		{
-			return {std::min(x, b.x), std::min(y, b.y), std::min(z, b.z)};
+			Vector3 result;
+			glm_vec3_mul(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Max(const Vector3& b) const -> Vector3
+		auto operator*(float b) -> Vector3
 		{
-			return {std::max(x, b.x), std::max(y, b.y), std::max(z, b.z)};
+			Vector3 result;
+			glm_vec3_scale(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Absolute() const -> Vector3
+		auto operator/(Vector3 b) -> Vector3
 		{
-			return {std::abs(x), std::abs(y), std::abs(z)};
+			Vector3 result;
+			glm_vec3_div(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Length() const -> float
+		auto operator/(float b) -> Vector3
 		{
-			return std::sqrt(LengthSquared());
+			Vector3 result;
+			glm_vec3_divs(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto LengthSquared() const -> float
+		void operator+=(Vector3 b)
 		{
-			return (x * x) + (y * y) + (z * z);
+			x += b.x;
+			y += b.y;
+			z += b.z;
 		}
 
-		[[nodiscard]] auto Normalized() const -> Vector3
+		void operator-=(Vector3 b)
 		{
-			float length = Length();
-			return {x / length, y / length, z / length};
+			x -= b.x;
+			y -= b.y;
+			z -= b.z;
 		}
 
-		void Normalize()
+		void operator*=(Vector3 b)
 		{
-			float length = Length();
-			x /= length;
-			y /= length;
-			z /= length;
+			x *= b.x;
+			y *= b.y;
+			z *= b.z;
 		}
 
-		[[nodiscard]] auto Dot(const Vector3& other) const -> float
+		void operator*=(float b)
 		{
-			return (x * other.x) + (y * other.y) + (z * other.z);
+			x *= b;
+			y *= b;
+			z *= b;
 		}
 
-		[[nodiscard]] auto Cross(const Vector3& other) const -> Vector3
+		void operator/=(Vector3 b)
 		{
-			return {(y * other.z) - (z * other.y), (z * other.x) - (x * other.z),
-					(x * other.y) - (y * other.x)};
+			x /= b.x;
+			y /= b.y;
+			z /= b.z;
 		}
 
-		[[nodiscard]] auto Angle(const Vector3& other) const -> float
+		void operator/=(float b)
 		{
-			return std::atan2(other.z, other.x) - std::atan2(z, x);
+			x /= b;
+			y /= b;
+			z /= b;
 		}
 
-		[[nodiscard]] auto Lerp(const Vector3& other, float t) const -> Vector3
+		void negate()
 		{
-			return {x + ((other.x - x) * t), y + ((other.y - y) * t),
-					z + ((other.z - z) * t)};
+			glm_vec3_negate(raw);
 		}
 
-		[[nodiscard]] auto Slerp(const Vector3& other, float t) const -> Vector3
+		[[nodiscard]] auto negated() const -> Vector3
 		{
-			return Lerp(other, t).Normalized();
+			Vector3 out;
+			glm_vec3_negate_to(const_cast<vec3&>(raw), out.raw);
+			return out;
 		}
 
-		[[nodiscard]] auto Distance(const Vector3& other) const -> float
+		void rotate(float angle, Vector3 axis)
 		{
-			return std::sqrt(DistanceSquared(other));
+			glm_vec3_rotate(raw, angle, axis);
 		}
 
-		[[nodiscard]] auto DistanceSquared(const Vector3& other) const -> float
+		void project(Vector3 b)
 		{
-			return ((x - other.x) * (x - other.x)) +
-				   ((y - other.y) * (y - other.y)) +
-				   ((z - other.z) * (z - other.z));
+			glm_vec3_proj(raw, b, raw);
 		}
 
-		[[nodiscard]] auto Reflect(const Vector3& normal) const -> Vector3
+		auto projected(Vector3 b) -> Vector3
 		{
-			return *this - (normal * (2.0F * Dot(normal)));
+			Vector3 result;
+			glm_vec3_proj(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Refract(const Vector3& other, float eta) const -> Vector3
+		auto perpendicular(Vector3 b) -> Vector3
 		{
-			return {x * eta, y * eta, z * eta};
+			Vector3 result;
+			glm_vec3_ortho(raw, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Rcp() const -> Vector3
+		static auto center(Vector3 a, Vector3 b) -> Vector3
 		{
-			return {1.0F / x, 1.0F / y, 1.0F / z};
+			Vector3 result;
+			glm_vec3_center(a, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto LengthInverse() const -> Vector3
+		static auto distance(Vector3 a, Vector3 b) -> float
 		{
-			return {1.0F / Length(), 1.0F / Length(), 1.0F / Length()};
+			return glm_vec3_distance(a, b);
 		}
 
-		[[nodiscard]] auto LengthInverseSquared() const -> Vector3
+		static auto distanceSquared(Vector3 a, Vector3 b) -> float
 		{
-			return {1.0F / LengthSquared(), 1.0F / LengthSquared(),
-					1.0F / LengthSquared()};
+			return glm_vec3_distance2(a, b);
 		}
 
-		static auto zero() -> Vector3
+		[[nodiscard]] auto distance(Vector3 b) const -> float
 		{
-			return {0.0F, 0.0F, 0.0F};
+			return glm_vec3_distance(const_cast<vec3&>(raw), b);
 		}
 
-		static auto One() -> Vector3
+		[[nodiscard]] auto distanceSquared(Vector3 b) const -> float
 		{
-			return {1.0F, 1.0F, 1.0F};
+			return glm_vec3_distance2(const_cast<vec3&>(raw), b);
 		}
 
-		static auto Up() -> Vector3
+		static auto max(Vector3 a, Vector3 b) -> Vector3
 		{
-			return {0.0F, 1.0F, 0.0F};
+			Vector3 result;
+			glm_vec3_maxv(a, b, result);
+			return result;
 		}
 
-		static auto Down() -> Vector3
+		static auto min(Vector3 a, Vector3 b) -> Vector3
 		{
-			return {0.0F, -1.0F, 0.0F};
+			Vector3 result;
+			glm_vec3_minv(a, b, result);
+			return result;
 		}
 
-		static auto Left() -> Vector3
+		void clamp(float min, float max)
 		{
-			return {-1.0F, 0.0F, 0.0F};
+			glm_vec3_clamp(raw, min, max);
 		}
 
-		static auto Right() -> Vector3
+		static auto lerp(Vector3 a, Vector3 b, float t) -> Vector3
 		{
-			return {1.0F, 0.0F, 0.0F};
+			Vector3 result;
+			glm_vec3_lerp(a, b, t, result);
+			return result;
 		}
 
-		static auto Forward() -> Vector3
+		void lerp(Vector3 b, float t)
 		{
-			return {0.0F, 0.0F, 1.0F};
+			glm_vec3_lerp(raw, b, t, raw);
 		}
 
-		static auto Backward() -> Vector3
+		void reflect(Vector3 normal)
 		{
-			return {0.0F, 0.0F, -1.0F};
+			glm_vec3_reflect(raw, normal, raw);
+		}
+
+		[[nodiscard]] auto reflected(Vector3 normal) const -> Vector3
+		{
+			Vector3 result;
+			glm_vec3_reflect(const_cast<vec3&>(raw), normal.normalized(), result);
+			return result;
+		}
+
+		void refract(Vector3 normal, float eta)
+		{
+			glm_vec3_refract(normalized(), normal.normalized(), eta, raw);
+		}
+
+		[[nodiscard]] auto refracted(Vector3 normal, float eta) const -> Vector3
+		{
+			Vector3 result;
+			glm_vec3_refract(normalized(), normal.normalized(), eta, result);
+			return result;
+		}
+
+		static auto angle(Vector3 a, Vector3 b) -> float
+		{
+			return glm_vec3_angle(a, b) * (180.F / (float)M_PI);
+		}
+
+		[[nodiscard]] auto angle(Vector3 b) const -> float
+		{
+			return glm_vec3_angle(const_cast<vec3&>(raw), b) * (180.F / (float)M_PI);
+		}
+
+		auto operator==(Vector3 b) -> bool
+		{
+			return glm_vec3_eqv(raw, b);
+		}
+
+		auto operator!=(Vector3 b) -> bool
+		{
+			return !glm_vec3_eqv(raw, b);
+		}
+
+		auto operator==(float b) -> bool
+		{
+			return glm_vec3_eq(raw, b);
+		}
+
+		auto operator!=(float b) -> bool
+		{
+			return !glm_vec3_eq(raw, b);
+		}
+
+		auto operator<(float b) -> bool
+		{
+			return magnitudeSquared() < (b * b);
+		}
+
+		auto operator>(float b) -> bool
+		{
+			return magnitudeSquared() > (b * b);
 		}
 	};
 }

@@ -81,9 +81,6 @@ namespace core
 
 		math::Matrix4 _projection;
 
-        void _calculatePerspectiveMatrix(float fovY, float sensorAspect);
-		void _calculateOrthographicMatrix(float fovY, float sensorAspect);
-
 		// calculates the new field of view and aspect
         // based on gate fit
         // x is vertical fov, y is sensor aspect

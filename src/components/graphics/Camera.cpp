@@ -20,14 +20,24 @@ namespace core
 			_sensorAspect = sensorSize.x / sensorSize.y;
 
 			auto fovAspect = _calculateFieldOfView();
+            auto fovY = fovAspect.x;
+            auto sensorAspect = fovAspect.y;
+
+			// apply lens shift
+			float top = near * std::tan(fovY / 2.0F) * (1.0F - 2.0F * lensShift.y);
+			float bottom = -near * std::tan(fovY / 2.0F) * (1.0F + 2.0F * lensShift.y);
+			float right =
+				near * sensorAspect * std::tan(fovY / 2.0F) * (1.0F + 2.0F * lensShift.x);
+			float left = -near * sensorAspect * std::tan(fovY / 2.0F) *
+						 (1.0F - 2.0F * lensShift.x);
 
 			if (projectionType == ProjectionType::Perspective)
 			{
-				_calculatePerspectiveMatrix(fovAspect.x, fovAspect.y);
+				_projection = math::Matrix4::frustum(left, right, bottom, top, near, far);
 			}
 			else
 			{
-				_calculateOrthographicMatrix(fovAspect.x, fovAspect.y);
+				_projection = math::Matrix4::ortho(left, right, bottom, top, near, far);
 			}
 		}
 	}
@@ -62,41 +72,15 @@ namespace core
 		return {fovY, aspect};
 	}
 
-	void Camera::_calculatePerspectiveMatrix(float fovY, float sensorAspect)
-	{
-        // apply lens shift
-		float top = near * std::tan(fovY / 2.0F) * (1.0F - 2.0F * lensShift.y);
-		float bottom = -near * std::tan(fovY / 2.0F) * (1.0F + 2.0F * lensShift.y);
-		float right =
-			near * sensorAspect * std::tan(fovY / 2.0F) * (1.0F + 2.0F * lensShift.x);
-		float left =
-			-near * sensorAspect * std::tan(fovY / 2.0F) * (1.0F - 2.0F * lensShift.x);
+    void Camera::onEnable()
+    {
 
-		math::Matrix4 proj;
-		proj.m[0][0] = 2.0F * near / (right - left);
-		proj.m[0][2] = (right + left) / (right - left);
-		proj.m[1][1] = 2.0F * near / (top - bottom);
-		proj.m[1][2] = (top + bottom) / (top - bottom);
-		proj.m[2][2] = -(far + near) / (far - near);
-		proj.m[2][3] = -2.0F * far * near / (far - near);
-		proj.m[3][2] = -1.0F;
-		proj.m[3][3] = 0.0F;
+    }
 
-        _projection = proj;
-	}
+    void Camera::onDisable()
+    {
 
-	void Camera::_calculateOrthographicMatrix(float fovY, float sensorAspect)
-	{
-		// apply lens shift
-		float top = near * std::tan(fovY / 2.0F) * (1.0F - 2.0F * lensShift.y);
-		float bottom = -near * std::tan(fovY / 2.0F) * (1.0F + 2.0F * lensShift.y);
-		float right =
-			near * sensorAspect * std::tan(fovY / 2.0F) * (1.0F + 2.0F * lensShift.x);
-		float left =
-			-near * sensorAspect * std::tan(fovY / 2.0F) * (1.0F - 2.0F * lensShift.x);
-
-        _projection = math::Matrix4::Orthographic(left, right, bottom, top, near, far);
-	}
+    }
 
 	auto Camera::getProjectionType() const -> ProjectionType
 	{

@@ -1,233 +1,279 @@
 #pragma once
-#include "utils/math/Vector3.h"
+#include "cglm/types.h"
+#include "cglm/vec4.h"
+
 namespace math
 {
 	struct Vector4
 	{
-	public:
-		float x;
-		float y;
-		float z;
-		float w;
-
-		Vector4() : x(0.0F), y(0.0F), z(0.0F), w(1.0F) {};
-		Vector4(float x, float y, float z, float w = 0.0F) : x(x), y(y), z(z), w(w) {};
-		Vector4(const Vector3& vec3, float w = 1.0F) : x(vec3.x), y(vec3.y), z(vec3.z), w(w) {};
-		Vector4(const Vector2& vec2, float z = 0.0F, float w = 1.0F) : x(vec2.x), y(vec2.y), z(z), w(w) {};
-
-		auto operator+(const Vector4& other) const -> Vector4
+		union
 		{
-			return {x + other.x, y + other.y, z + other.z, w + other.w};
+			struct
+			{
+				float x, y, z, w;
+			};
+			vec4 raw;
+		};
+
+		Vector4() : raw{0.0F, 0.0F, 0.0F, 0.0F}
+		{
+		}
+		Vector4(float x, float y, float z, float w) : raw{x, y, z, w}
+		{
 		}
 
-		auto operator-(const Vector4& other) const -> Vector4
+		// Implicit conversion to cglm's vec4 if needed
+		operator vec4&()
 		{
-			return {x - other.x, y - other.y, z - other.z, w - other.w};
+			return raw;
+		}
+		operator const vec4&() const
+		{
+			return raw;
 		}
 
-		auto operator*(const Vector4& other) const -> Vector4
+		[[nodiscard]] auto length() const -> float
 		{
-			return {x * other.x, y * other.y, z * other.z, w * other.w};
+			return glm_vec4_norm(const_cast<vec4&>(raw));
 		}
 
-		auto operator/(const Vector4& other) const -> Vector4
+		[[nodiscard]] auto normalized() const -> Vector4
 		{
-			return {x / other.x, y / other.y, z / other.z, w / other.w};
+			Vector4 out;
+			glm_vec4_normalize_to(const_cast<vec4&>(raw), out.raw);
+			return out;
 		}
 
-		auto operator+(float scalar) const -> Vector4
+		void normalize()
 		{
-			return {x + scalar, y + scalar, z + scalar, w + scalar};
+			glm_vec4_normalize(raw);
 		}
 
-		auto operator-(float scalar) const -> Vector4
+		static auto dot(Vector4 a, Vector4 b) -> float
 		{
-			return {x - scalar, y - scalar, z - scalar, w - scalar};
+			return glm_vec4_dot(a, b);
 		}
 
-		auto operator*(float scalar) const -> Vector4
+		auto dot(Vector4 other) -> float
 		{
-			return {x * scalar, y * scalar, z * scalar, w * scalar};
+			return glm_vec4_dot(raw, other);
 		}
 
-		auto operator/(float scalar) const -> Vector4
+		auto magnitude() -> float
 		{
-			return {x / scalar, y / scalar, z / scalar, w / scalar};
+			return glm_vec4_norm(raw);
 		}
 
-		auto operator==(const Vector4& other) const -> bool
+		auto magnitudeSquared() -> float
 		{
-			return x == other.x && y == other.y && z == other.z && w == other.w;
+			return glm_vec4_norm2(raw);
 		}
 
-		auto operator!=(const Vector4& other) const -> bool
+		auto operator+(Vector4 b) -> Vector4
 		{
-			return !(*this == other);
+			Vector4 result;
+			glm_vec4_add(raw, b, result);
+			return result;
 		}
 
-		auto operator<=(const Vector4& other) const -> bool
+		auto operator-(float b) -> Vector4
 		{
-			return x <= other.x && y <= other.y && z <= other.z && w <= other.w;
+			Vector4 result;
+			glm_vec4_adds(raw, b, result);
+			return result;
 		}
 
-		auto operator>=(const Vector4& other) const -> bool
+		auto operator*(Vector4 b) -> Vector4
 		{
-			return x >= other.x && y >= other.y && z >= other.z && w >= other.w;
+			Vector4 result;
+			glm_vec4_mul(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Negate() const -> Vector4
+		auto operator*(float b) -> Vector4
 		{
-			return {-x, -y, -z, -w};
+			Vector4 result;
+			glm_vec4_scale(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Min(const Vector4& b) const -> Vector4
+		auto operator/(Vector4 b) -> Vector4
 		{
-			return {std::min(x, b.x), std::min(y, b.y), std::min(z, b.z), std::min(w, b.w)};
+			Vector4 result;
+			glm_vec4_div(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Max(const Vector4& b) const -> Vector4
+		auto operator/(float b) -> Vector4
 		{
-			return {std::max(x, b.x), std::max(y, b.y), std::max(z, b.z), std::max(w, b.w)};
+			Vector4 result;
+			glm_vec4_divs(raw, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Absolute() const -> Vector4
+		void operator+=(Vector4 b)
 		{
-			return {std::abs(x), std::abs(y), std::abs(z), std::abs(w)};
+			x += b.x;
+			y += b.y;
+			z += b.z;
+			w += b.w;
 		}
 
-		[[nodiscard]] auto Length() const -> float
+		void operator-=(Vector4 b)
 		{
-			return std::sqrt(LengthSquared());
+			x -= b.x;
+			y -= b.y;
+			z -= b.z;
+			w -= b.w;
 		}
 
-		[[nodiscard]] auto LengthSquared() const -> float
+		void operator*=(Vector4 b)
 		{
-			return (x * x) + (y * y) + (z * z) + (w * w);
+			x *= b.x;
+			y *= b.y;
+			z *= b.z;
+			w *= b.w;
 		}
 
-		[[nodiscard]] auto Normalized() const -> Vector4
+		void operator*=(float b)
 		{
-			float length = Length();
-			return {x / length, y / length, z / length, w / length};
+			x *= b;
+			y *= b;
+			z *= b;
+			w *= b;
 		}
 
-		void Normalize()
+		void operator/=(Vector4 b)
 		{
-			float length = Length();
-			x /= length;
-			y /= length;
-			z /= length;
-			w /= length;
+			x /= b.x;
+			y /= b.y;
+			z /= b.z;
+			w /= b.w;
 		}
 
-		[[nodiscard]] auto Dot(const Vector4& other) const -> float
+		void operator/=(float b)
 		{
-			return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w);
+			x /= b;
+			y /= b;
+			z /= b;
+			w /= b;
 		}
 
-		[[nodiscard]] auto Cross(const Vector4& other) const -> Vector4
+		void negate()
 		{
-			return {(y * other.z) - (z * other.y), (z * other.x) - (x * other.z),
-					(x * other.y) - (y * other.x), 0.0F};
+			glm_vec4_negate(raw);
 		}
 
-		[[nodiscard]] auto Angle(const Vector4& other) const -> float
+		[[nodiscard]] auto negated() const -> Vector4
 		{
-			return std::acos(Dot(other) / (Length() * other.Length()));
+			Vector4 out;
+			glm_vec4_negate_to(const_cast<vec4&>(raw), out.raw);
+			return out;
 		}
 
-		[[nodiscard]] auto Lerp(const Vector4& other, float t) const -> Vector4
+		static auto distance(Vector4 a, Vector4 b) -> float
 		{
-			return {x + ((other.x - x) * t), y + ((other.y - y) * t),
-					z + ((other.z - z) * t), w + ((other.w - w) * t)};
+			return glm_vec4_distance(a, b);
 		}
 
-		[[nodiscard]] auto Slerp(const Vector4& other, float t) const -> Vector4
+		static auto distanceSquared(Vector4 a, Vector4 b) -> float
 		{
-			return Lerp(other, t).Normalized();
+			return glm_vec4_distance2(a, b);
 		}
 
-		[[nodiscard]] auto Distance(const Vector4& other) const -> float
+		[[nodiscard]] auto distance(Vector4 b) const -> float
 		{
-			return std::sqrt(DistanceSquared(other));
+			return glm_vec4_distance(const_cast<vec4&>(raw), b);
 		}
 
-		[[nodiscard]] auto DistanceSquared(const Vector4& other) const -> float
+		[[nodiscard]] auto distanceSquared(Vector4 b) const -> float
 		{
-			return ((x - other.x) * (x - other.x)) +
-				   ((y - other.y) * (y - other.y)) +
-				   ((z - other.z) * (z - other.z)) +
-				   ((w - other.w) * (w - other.w));
+			return glm_vec4_distance2(const_cast<vec4&>(raw), b);
 		}
 
-		[[nodiscard]] auto Reflect(const Vector4& normal) const -> Vector4
+		static auto max(Vector4 a, Vector4 b) -> Vector4
 		{
-			return *this - (normal * (2.0F * Dot(normal)));
+			Vector4 result;
+			glm_vec4_maxv(a, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Refract(const Vector4& other, float eta) const -> Vector4
+		static auto min(Vector4 a, Vector4 b) -> Vector4
 		{
-			return {x * eta, y * eta, z * eta, w * eta};
+			Vector4 result;
+			glm_vec4_minv(a, b, result);
+			return result;
 		}
 
-		[[nodiscard]] auto Rcp() const -> Vector4
+		void clamp(float min, float max)
 		{
-			return {1.0F / x, 1.0F / y, 1.0F / z, 1.0F / w};
+			glm_vec4_clamp(raw, min, max);
 		}
 
-		[[nodiscard]] auto LengthInverse() const -> Vector4
+		static auto lerp(Vector4 a, Vector4 b, float t) -> Vector4
 		{
-			return {1.0F / Length(), 1.0F / Length(), 1.0F / Length(), 1.0F / Length()};
+			Vector4 result;
+			glm_vec4_lerp(a, b, t, result);
+			return result;
 		}
 
-		[[nodiscard]] auto ToVector3() const -> Vector3
+		void lerp(Vector4 b, float t)
 		{
-			return {x, y, z};
+			glm_vec4_lerp(raw, b, t, raw);
 		}
 
-		[[nodiscard]] auto ToVector2() const -> Vector2
+		void reflect(Vector4 normal)
 		{
-			return {x, y};
+			glm_vec4_reflect(raw, normal, raw);
 		}
 
-		static auto zero() -> Vector4
+		[[nodiscard]] auto reflected(Vector4 normal) const -> Vector4
 		{
-			return {0.0F, 0.0F, 0.0F};
+			Vector4 result;
+			glm_vec4_reflect(const_cast<vec4&>(raw), normal.normalized(), result);
+			return result;
 		}
 
-		static auto One() -> Vector4
+		void refract(Vector4 normal, float eta)
 		{
-			return {1.0F, 1.0F, 1.0F};
+			glm_vec4_refract(normalized(), normal.normalized(), eta, raw);
 		}
 
-		static auto Up() -> Vector4
+		[[nodiscard]] auto refracted(Vector4 normal, float eta) const -> Vector4
 		{
-			return {0.0F, 1.0F, 0.0F};
+			Vector4 result;
+			glm_vec4_refract(normalized(), normal.normalized(), eta, result);
+			return result;
 		}
 
-		static auto Down() -> Vector4
+		auto operator==(Vector4 b) -> bool
 		{
-			return {0.0F, -1.0F, 0.0F};
+			return glm_vec4_eqv(raw, b);
 		}
 
-		static auto Left() -> Vector4
+		auto operator!=(Vector4 b) -> bool
 		{
-			return {-1.0F, 0.0F, 0.0F};
+			return !glm_vec4_eqv(raw, b);
 		}
 
-		static auto Right() -> Vector4
+		auto operator==(float b) -> bool
 		{
-			return {1.0F, 0.0F, 0.0F};
+			return glm_vec4_eq(raw, b);
 		}
 
-		static auto Forward() -> Vector4
+		auto operator!=(float b) -> bool
 		{
-			return {0.0F, 0.0F, 1.0F};
+			return !glm_vec4_eq(raw, b);
 		}
 
-		static auto Backward() -> Vector4
+		auto operator<(float b) -> bool
 		{
-			return {0.0F, 0.0F, -1.0F};
+			return magnitudeSquared() < (b * b);
+		}
+
+		auto operator>(float b) -> bool
+		{
+			return magnitudeSquared() > (b * b);
 		}
 	};
 }

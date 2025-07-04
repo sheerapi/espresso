@@ -25,7 +25,8 @@ sources = [
 	'src/core/Scene.cpp',
 	'src/core/TickThread.cpp',
 	'src/core/Transform.cpp',
-	'src/platform/JobScheduler.cpp'
+	'src/platform/JobScheduler.cpp',
+	'src/components/graphics/Camera.cpp'
 ]
 
 if get_option('debug')
@@ -36,7 +37,8 @@ dependencies = [
 	dependency('sdl2'),
 	dependency('glad'),
 	dependency('luajit'),
-	dependency('libzstd')
+	dependency('libzstd'),
+	dependency('cglm')
 ]
 
 espresso_lib = library(
