@@ -10,7 +10,7 @@ namespace math
 	struct Matrix4
 	{
 	public:
-		float M[4][4];
+		float m[4][4];
 
 		Matrix4()
 		{
@@ -18,18 +18,18 @@ namespace math
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					M[i][j] = (i == j) ? 1.0F : 0.0F;
+					m[i][j] = (i == j) ? 1.0F : 0.0F;
 				}
 			}
 		};
 
-		Matrix4(const float m[4][4])
+		Matrix4(const float n[4][4])
 		{
 			for (int i = 0; i < 4; ++i)
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					M[i][j] = m[i][j];
+					m[i][j] = n[i][j];
 				}
 			}
 		};
@@ -37,25 +37,25 @@ namespace math
 		Matrix4(const Vector4& col0, const Vector4& col1, const Vector4& col2,
 				const Vector4& col3)
 		{
-			M[0][0] = col0.X;
-			M[1][0] = col0.Y;
-			M[2][0] = col0.Z;
-			M[3][0] = col0.W;
+			m[0][0] = col0.x;
+			m[1][0] = col0.y;
+			m[2][0] = col0.z;
+			m[3][0] = col0.w;
 
-			M[0][1] = col1.X;
-			M[1][1] = col1.Y;
-			M[2][1] = col1.Z;
-			M[3][1] = col1.W;
+			m[0][1] = col1.x;
+			m[1][1] = col1.y;
+			m[2][1] = col1.z;
+			m[3][1] = col1.w;
 
-			M[0][2] = col2.X;
-			M[1][2] = col2.Y;
-			M[2][2] = col2.Z;
-			M[3][2] = col2.W;
+			m[0][2] = col2.x;
+			m[1][2] = col2.y;
+			m[2][2] = col2.z;
+			m[3][2] = col2.w;
 
-			M[0][3] = col3.X;
-			M[1][3] = col3.Y;
-			M[2][3] = col3.Z;
-			M[3][3] = col3.W;
+			m[0][3] = col3.x;
+			m[1][3] = col3.y;
+			m[2][3] = col3.z;
+			m[3][3] = col3.w;
 		};
 
 		auto operator*(const Matrix4& other) const -> Matrix4
@@ -65,8 +65,8 @@ namespace math
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					result.M[i][j] = M[i][0] * other.M[0][j] + M[i][1] * other.M[1][j] +
-									 M[i][2] * other.M[2][j] + M[i][3] * other.M[3][j];
+					result.m[i][j] = m[i][0] * other.m[0][j] + m[i][1] * other.m[1][j] +
+									 m[i][2] * other.m[2][j] + m[i][3] * other.m[3][j];
 				}
 			}
 			return result;
@@ -74,14 +74,14 @@ namespace math
 
 		auto operator*(const Vector4& vec) const -> Vector4
 		{
-			return {(M[0][0] * vec.X) + (M[1][0] * vec.Y) + (M[2][0] * vec.Z) +
-						(M[3][0] * vec.W),
-					(M[0][1] * vec.X) + (M[1][1] * vec.Y) + (M[2][1] * vec.Z) +
-						(M[3][1] * vec.W),
-					(M[0][2] * vec.X) + (M[1][2] * vec.Y) + (M[2][2] * vec.Z) +
-						(M[3][2] * vec.W),
-					(M[0][3] * vec.X) + (M[1][3] * vec.Y) + (M[2][3] * vec.Z) +
-						(M[3][3] * vec.W)};
+			return {(m[0][0] * vec.x) + (m[1][0] * vec.y) + (m[2][0] * vec.z) +
+						(m[3][0] * vec.w),
+					(m[0][1] * vec.x) + (m[1][1] * vec.y) + (m[2][1] * vec.z) +
+						(m[3][1] * vec.w),
+					(m[0][2] * vec.x) + (m[1][2] * vec.y) + (m[2][2] * vec.z) +
+						(m[3][2] * vec.w),
+					(m[0][3] * vec.x) + (m[1][3] * vec.y) + (m[2][3] * vec.z) +
+						(m[3][3] * vec.w)};
 		};
 
 		auto operator*(float scalar) const -> Matrix4
@@ -91,7 +91,7 @@ namespace math
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					result.M[i][j] = M[i][j] * scalar;
+					result.m[i][j] = m[i][j] * scalar;
 				}
 			}
 			return result;
@@ -104,7 +104,7 @@ namespace math
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					result.M[i][j] = M[i][j] / scalar;
+					result.m[i][j] = m[i][j] / scalar;
 				}
 			}
 			return result;
@@ -116,7 +116,7 @@ namespace math
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					if (M[i][j] != other.M[i][j])
+					if (m[i][j] != other.m[i][j])
 					{
 						return false;
 					}
@@ -142,7 +142,7 @@ namespace math
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					result.M[i][j] = M[j][i];
+					result.m[i][j] = m[j][i];
 				}
 			}
 			return result;
@@ -152,18 +152,18 @@ namespace math
 		{
 			// Calculate the determinant using cofactor expansion
 			float det = 0.0F;
-			det += M[0][0] * (M[1][1] * (M[2][2] * M[3][3] - M[2][3] * M[3][2]) -
-							  M[1][2] * (M[2][1] * M[3][3] - M[2][3] * M[3][1]) +
-							  M[1][3] * (M[2][1] * M[3][2] - M[2][2] * M[3][1]));
-			det -= M[0][1] * (M[1][0] * (M[2][2] * M[3][3] - M[2][3] * M[3][2]) -
-							  M[1][2] * (M[2][0] * M[3][3] - M[2][3] * M[3][0]) +
-							  M[1][3] * (M[2][0] * M[3][2] - M[2][2] * M[3][0]));
-			det += M[0][2] * (M[1][0] * (M[2][1] * M[3][3] - M[2][3] * M[3][1]) -
-							  M[1][1] * (M[2][0] * M[3][3] - M[2][3] * M[3][0]) +
-							  M[1][3] * (M[2][0] * M[3][1] - M[2][1] * M[3][0]));
-			det -= M[0][3] * (M[1][0] * (M[2][1] * M[3][2] - M[2][2] * M[3][1]) -
-							  M[1][1] * (M[2][0] * M[3][2] - M[2][2] * M[3][0]) +
-							  M[1][2] * (M[2][0] * M[3][1] - M[2][1] * M[3][0]));
+			det += m[0][0] * (m[1][1] * (m[2][2] * m[3][3] - m[2][3] * m[3][2]) -
+							  m[1][2] * (m[2][1] * m[3][3] - m[2][3] * m[3][1]) +
+							  m[1][3] * (m[2][1] * m[3][2] - m[2][2] * m[3][1]));
+			det -= m[0][1] * (m[1][0] * (m[2][2] * m[3][3] - m[2][3] * m[3][2]) -
+							  m[1][2] * (m[2][0] * m[3][3] - m[2][3] * m[3][0]) +
+							  m[1][3] * (m[2][0] * m[3][2] - m[2][2] * m[3][0]));
+			det += m[0][2] * (m[1][0] * (m[2][1] * m[3][3] - m[2][3] * m[3][1]) -
+							  m[1][1] * (m[2][0] * m[3][3] - m[2][3] * m[3][0]) +
+							  m[1][3] * (m[2][0] * m[3][1] - m[2][1] * m[3][0]));
+			det -= m[0][3] * (m[1][0] * (m[2][1] * m[3][2] - m[2][2] * m[3][1]) -
+							  m[1][1] * (m[2][0] * m[3][2] - m[2][2] * m[3][0]) +
+							  m[1][2] * (m[2][0] * m[3][1] - m[2][1] * m[3][0]));
 			return det;
 		}
 
@@ -200,7 +200,7 @@ namespace math
 							{
 								continue;
 							}
-							minor[rowIndex][colIndex] = M[row][col];
+							minor[rowIndex][colIndex] = m[row][col];
 							++colIndex;
 						}
 						++rowIndex;
@@ -213,7 +213,7 @@ namespace math
 							 (minor[1][0] * minor[2][2] - minor[1][2] * minor[2][0]) +
 						 minor[0][2] *
 							 (minor[1][0] * minor[2][1] - minor[1][1] * minor[2][0]));
-					result.M[j][i] = cofactor * invDet; // Transpose of cofactor matrix
+					result.m[j][i] = cofactor * invDet; // Transpose of cofactor matrix
 				}
 			}
 			return result;
@@ -222,42 +222,42 @@ namespace math
 		static auto Translation(float x, float y, float z) -> Matrix4
 		{
 			Matrix4 result = Identity();
-			result.M[0][3] = x;
-			result.M[1][3] = y;
-			result.M[2][3] = z;
+			result.m[0][3] = x;
+			result.m[1][3] = y;
+			result.m[2][3] = z;
 			return result;
 		}
 
 		static auto Translation(const Vector3& translation) -> Matrix4
 		{
 			Matrix4 result = Identity();
-			result.M[0][3] = translation.X;
-			result.M[1][3] = translation.Y;
-			result.M[2][3] = translation.Z;
+			result.m[0][3] = translation.x;
+			result.m[1][3] = translation.y;
+			result.m[2][3] = translation.z;
 			return result;
 		}
 
 		static auto Scale(float x, float y, float z) -> Matrix4
 		{
 			Matrix4 result = Identity();
-			result.M[0][0] = x;
-			result.M[1][1] = y;
-			result.M[2][2] = z;
+			result.m[0][0] = x;
+			result.m[1][1] = y;
+			result.m[2][2] = z;
 			return result;
 		}
 
 		static auto Scale(const Vector3& scale) -> Matrix4
 		{
-			return Scale(scale.X, scale.Y, scale.Z);
+			return Scale(scale.x, scale.y, scale.z);
 		}
 
 		static auto Rotation(const Quaternion& quaternion) -> Matrix4
 		{
 			Matrix4 result = Identity();
-			float x = quaternion.X;
-			float y = quaternion.Y;
-			float z = quaternion.Z;
-			float w = quaternion.W;
+			float x = quaternion.x;
+			float y = quaternion.y;
+			float z = quaternion.z;
+			float w = quaternion.w;
 
 			float xx = 2 * x * x;
 			float yy = 2 * y * y;
@@ -269,17 +269,17 @@ namespace math
 			float yw = 2 * y * w;
 			float zw = 2 * z * w;
 
-			result.M[0][0] = 1 - yy - zz;
-			result.M[0][1] = xy - zw;
-			result.M[0][2] = xz + yw;
+			result.m[0][0] = 1 - yy - zz;
+			result.m[0][1] = xy - zw;
+			result.m[0][2] = xz + yw;
 
-			result.M[1][0] = xy + zw;
-			result.M[1][1] = 1 - xx - zz;
-			result.M[1][2] = yz - xw;
+			result.m[1][0] = xy + zw;
+			result.m[1][1] = 1 - xx - zz;
+			result.m[1][2] = yz - xw;
 
-			result.M[2][0] = xz - yw;
-			result.M[2][1] = yz + xw;
-			result.M[2][2] = 1 - xx - yy;
+			result.m[2][0] = xz - yw;
+			result.m[2][1] = yz + xw;
+			result.m[2][2] = 1 - xx - yy;
 
 			return result;
 		}
@@ -289,12 +289,12 @@ namespace math
 			Matrix4 result;
 			float tanHalfFov = std::tan(fov / 2.0F);
 
-			result.M[0][0] = 1.0F / (aspect * tanHalfFov);
-			result.M[1][1] = 1.0F / tanHalfFov;
-			result.M[2][2] = -(far + near) / (far - near);
-			result.M[2][3] = -1.0F;
-			result.M[3][2] = -(2.0F * far * near) / (far - near);
-			result.M[3][3] = 0.0F;
+			result.m[0][0] = 1.0F / (aspect * tanHalfFov);
+			result.m[1][1] = 1.0F / tanHalfFov;
+			result.m[2][2] = -(far + near) / (far - near);
+			result.m[2][3] = -1.0F;
+			result.m[3][2] = -(2.0F * far * near) / (far - near);
+			result.m[3][3] = 0.0F;
 
 			return result;
 		}
@@ -304,13 +304,13 @@ namespace math
 		{
 			Matrix4 result = Identity();
 
-			result.M[0][0] = 2.0F / (right - left);
-			result.M[1][1] = 2.0F / (top - bottom);
-			result.M[2][2] = -2.0F / (far - near);
+			result.m[0][0] = 2.0F / (right - left);
+			result.m[1][1] = 2.0F / (top - bottom);
+			result.m[2][2] = -2.0F / (far - near);
 
-			result.M[3][0] = -(right + left) / (right - left);
-			result.M[3][1] = -(top + bottom) / (top - bottom);
-			result.M[3][2] = -(far + near) / (far - near);
+			result.m[3][0] = -(right + left) / (right - left);
+			result.m[3][1] = -(top + bottom) / (top - bottom);
+			result.m[3][2] = -(far + near) / (far - near);
 
 			return result;
 		}
@@ -323,21 +323,21 @@ namespace math
 			Vector4 u = s.Cross(f);
 
 			Matrix4 result = Identity();
-			result.M[0][0] = s.X;
-			result.M[1][0] = s.Y;
-			result.M[2][0] = s.Z;
+			result.m[0][0] = s.x;
+			result.m[1][0] = s.y;
+			result.m[2][0] = s.z;
 
-			result.M[0][1] = u.X;
-			result.M[1][1] = u.Y;
-			result.M[2][1] = u.Z;
+			result.m[0][1] = u.x;
+			result.m[1][1] = u.y;
+			result.m[2][1] = u.z;
 
-			result.M[0][2] = -f.X;
-			result.M[1][2] = -f.Y;
-			result.M[2][2] = -f.Z;
+			result.m[0][2] = -f.x;
+			result.m[1][2] = -f.y;
+			result.m[2][2] = -f.z;
 
-			result.M[3][0] = -s.Dot(eye);
-			result.M[3][1] = -u.Dot(eye);
-			result.M[3][2] = f.Dot(eye);
+			result.m[3][0] = -s.Dot(eye);
+			result.m[3][1] = -u.Dot(eye);
+			result.m[3][2] = f.Dot(eye);
 
 			return result;
 		}
@@ -349,7 +349,7 @@ namespace math
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					result[(j * 4) + i] = M[i][j]; // Column-major order
+					result[(j * 4) + i] = m[i][j]; // Column-major order
 				}
 			}
 			return result;

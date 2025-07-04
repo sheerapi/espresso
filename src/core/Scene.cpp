@@ -127,6 +127,7 @@ namespace core
 	auto Scene::addEntity(std::string name, char tag) -> Entity*
 	{
 		auto* entity = new Entity(std::move(name), tag);
+		entity->_scene = this;
 		_entities.push_back(std::unique_ptr<Entity>(entity));
 		return entity;
 	}
@@ -169,5 +170,26 @@ namespace core
 	void Scene::addEntity(Entity* entity)
 	{
 		_entities.push_back(std::unique_ptr<Entity>(entity));
+	}
+
+	void Scene::registerCamera(Camera* camera)
+	{
+		_cameras.push_back(camera);
+		std::sort(_cameras.begin(), _cameras.end(), [](Camera* a, Camera* b)
+				  { return a->getRenderOrder() < b->getRenderOrder(); });
+		log_trace("new camera registered on scene");
+	}
+
+	void Scene::unregisterCamera(Camera* camera)
+	{
+		auto cam = std::remove(_cameras.begin(), _cameras.end(), camera);
+		std::sort(_cameras.begin(), _cameras.end(), [](Camera* a, Camera* b)
+				  { return a->getRenderOrder() < b->getRenderOrder(); });
+	}
+
+	void Scene::requestCameraReorder()
+	{
+		std::sort(_cameras.begin(), _cameras.end(), [](Camera* a, Camera* b)
+				  { return a->getRenderOrder() < b->getRenderOrder(); });
 	}
 }

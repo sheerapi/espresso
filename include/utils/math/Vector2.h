@@ -7,55 +7,55 @@ namespace math
 	struct Vector2
 	{
 	public:
-		float X;
-		float Y;
+		float x;
+		float y;
 
-		Vector2() : X(0.0F), Y(0.0F) {};
-		Vector2(float x, float y) : X(x), Y(y) {};
+		Vector2() : x(0.0F), y(0.0F) {};
+		Vector2(float x, float y) : x(x), y(y) {};
 
 		auto operator+(const Vector2& other) const -> Vector2
 		{
-			return {X + other.X, Y + other.Y};
+			return {x + other.x, y + other.y};
 		}
 
 		auto operator-(const Vector2& other) const -> Vector2
 		{
-			return {X - other.X, Y - other.Y};
+			return {x - other.x, y - other.y};
 		}
 
 		auto operator*(const Vector2& other) const -> Vector2
 		{
-			return {X * other.X, Y * other.Y};
+			return {x * other.x, y * other.y};
 		}
 
 		auto operator/(const Vector2& other) const -> Vector2
 		{
-			return {X / other.X, Y / other.Y};
+			return {x / other.x, y / other.y};
 		}
 
 		auto operator+(float scalar) const -> Vector2
 		{
-			return {X + scalar, Y + scalar};
+			return {x + scalar, y + scalar};
 		}
 
 		auto operator-(float scalar) const -> Vector2
 		{
-			return {X - scalar, Y - scalar};
+			return {x - scalar, y - scalar};
 		}
 
 		auto operator*(float scalar) const -> Vector2
 		{
-			return {X * scalar, Y * scalar};
+			return {x * scalar, y * scalar};
 		}
 
 		auto operator/(float scalar) const -> Vector2
 		{
-			return {X / scalar, Y / scalar};
+			return {x / scalar, y / scalar};
 		}
 
 		auto operator==(const Vector2& other) const -> bool
 		{
-			return X == other.X && Y == other.Y;
+			return x == other.x && y == other.y;
 		}
 
 		auto operator!=(const Vector2& other) const -> bool
@@ -65,32 +65,32 @@ namespace math
 
 		auto operator<=(const Vector2& other) const -> bool
 		{
-			return X <= other.X && Y <= other.Y;
+			return x <= other.x && y <= other.y;
 		}
 
 		auto operator>=(const Vector2& other) const -> bool
 		{
-			return X >= other.X && Y >= other.Y;
+			return x >= other.x && y >= other.y;
 		}
 
 		[[nodiscard]] auto Negate() const -> Vector2
 		{
-			return {-X, -Y};
+			return {-x, -y};
 		}
 
 		[[nodiscard]] auto Min(const Vector2& b) const -> Vector2
 		{
-			return {std::min(X, b.X), std::min(Y, b.Y)};
+			return {std::min(x, b.x), std::min(y, b.y)};
 		}
 
 		[[nodiscard]] auto Max(const Vector2& b) const -> Vector2
 		{
-			return {std::max(X, b.X), std::max(Y, b.Y)};
+			return {std::max(x, b.x), std::max(y, b.y)};
 		}
 
 		[[nodiscard]] auto Absolute() const -> Vector2
 		{
-			return {std::abs(X), std::abs(Y)};
+			return {std::abs(x), std::abs(y)};
 		}
 
 		[[nodiscard]] auto Length() const -> float
@@ -100,35 +100,35 @@ namespace math
 
 		[[nodiscard]] auto LengthSquared() const -> float
 		{
-			return (X * X) + (Y * Y);
+			return (x * x) + (y * y);
 		}
 
 		[[nodiscard]] auto Normalized() const -> Vector2
 		{
 			float length = Length();
-			return {X / length, Y / length};
+			return {x / length, y / length};
 		}
 
 		void Normalize()
 		{
 			float length = Length();
-			X /= length;
-			Y /= length;
+			x /= length;
+			y /= length;
 		}
 
 		[[nodiscard]] auto Dot(const Vector2& other) const -> float
 		{
-			return (X * other.X) + (Y * other.Y);
+			return (x * other.x) + (y * other.y);
 		}
 
 		[[nodiscard]] auto Angle(const Vector2& other) const -> float
 		{
-			return std::atan2(other.Y, other.X) - std::atan2(Y, X);
+			return std::atan2(other.y, other.x) - std::atan2(y, x);
 		}
 
 		[[nodiscard]] auto Lerp(const Vector2& other, float t) const -> Vector2
 		{
-			return {X + ((other.X - X) * t), Y + ((other.Y - Y) * t)};
+			return {x + ((other.x - x) * t), y + ((other.y - y) * t)};
 		}
 
 		[[nodiscard]] auto Distance(const Vector2& other) const -> float
@@ -138,7 +138,7 @@ namespace math
 
 		[[nodiscard]] auto DistanceSquared(const Vector2& other) const -> float
 		{
-			return ((X - other.X) * (X - other.X)) + ((Y - other.Y) * (Y - other.Y));
+			return ((x - other.x) * (x - other.x)) + ((y - other.y) * (y - other.y));
 		}
 
 		[[nodiscard]] auto Reflect(const Vector2& normal) const -> Vector2

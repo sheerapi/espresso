@@ -15,6 +15,8 @@ namespace core
 {
 	inline std::atomic<unsigned int> entity_id{0};
 
+	class Scene;
+
 	class Entity : public std::enable_shared_from_this<Entity>
 	{
 	public:
@@ -274,7 +276,7 @@ namespace core
 		{
 			_entityTag = entityTag;
 		}
-		auto getTag() const -> char
+		auto getTag() const -> unsigned char
 		{
 			return _entityTag;
 		}
@@ -310,6 +312,7 @@ namespace core
 		{
 			_visible = visible;
 		}
+
 		auto isVisible() const -> bool
 		{
 			return _visible;
@@ -319,9 +322,15 @@ namespace core
 		{
 			return _parent == nullptr;
 		}
+
 		auto getParent() const -> Entity*
 		{
 			return _parent;
+		}
+
+		auto getScene() -> Scene*
+		{
+			return _scene;
 		}
 
 		void tick()
@@ -397,9 +406,10 @@ namespace core
 		std::list<std::shared_ptr<Entity>> _children;
 		Entity* _parent{nullptr};
 		std::string _entityName;
+		Scene* _scene{nullptr};
 		bool _active{true};
 		bool _visible{true};
-		char _entityTag{0};
+		unsigned char _entityTag{0};
 		unsigned int _entityID{0};
 		std::mutex _childrenMutex;
 
@@ -417,5 +427,7 @@ namespace core
 					return false;
 				});
 		}
+
+		friend Scene;
 	};
 }

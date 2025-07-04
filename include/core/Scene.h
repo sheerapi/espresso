@@ -1,4 +1,5 @@
 #pragma once
+#include "components/graphics/Camera.h"
 #include "core/Component.h"
 #include <string>
 #include "core/Entity.h"
@@ -26,6 +27,10 @@ namespace core
 		auto removeEntity(const std::string& name) -> void;
 		auto removeEntities(const char& tag) -> void;
 
+		void registerCamera(Camera* camera);
+		void unregisterCamera(Camera* camera);
+		void requestCameraReorder();
+
 		void tick();
 		void render();
 		void start();
@@ -51,6 +56,7 @@ namespace core
 
 	private:
 		std::vector<std::unique_ptr<Entity>> _entities;
+		std::vector<core::Camera*> _cameras;
 		unsigned short _id{0};
 		std::string _name;
 	};

@@ -5,59 +5,59 @@ namespace math
 	struct Vector4
 	{
 	public:
-		float X;
-		float Y;
-		float Z;
-		float W;
+		float x;
+		float y;
+		float z;
+		float w;
 
-		Vector4() : X(0.0F), Y(0.0F), Z(0.0F), W(1.0F) {};
-		Vector4(float x, float y, float z, float w = 0.0F) : X(x), Y(y), Z(z), W(w) {};
-		Vector4(const Vector3& vec3, float w = 1.0F) : X(vec3.X), Y(vec3.Y), Z(vec3.Z), W(w) {};
-		Vector4(const Vector2& vec2, float z = 0.0F, float w = 1.0F) : X(vec2.X), Y(vec2.Y), Z(z), W(w) {};
+		Vector4() : x(0.0F), y(0.0F), z(0.0F), w(1.0F) {};
+		Vector4(float x, float y, float z, float w = 0.0F) : x(x), y(y), z(z), w(w) {};
+		Vector4(const Vector3& vec3, float w = 1.0F) : x(vec3.x), y(vec3.y), z(vec3.z), w(w) {};
+		Vector4(const Vector2& vec2, float z = 0.0F, float w = 1.0F) : x(vec2.x), y(vec2.y), z(z), w(w) {};
 
 		auto operator+(const Vector4& other) const -> Vector4
 		{
-			return {X + other.X, Y + other.Y, Z + other.Z, W + other.W};
+			return {x + other.x, y + other.y, z + other.z, w + other.w};
 		}
 
 		auto operator-(const Vector4& other) const -> Vector4
 		{
-			return {X - other.X, Y - other.Y, Z - other.Z, W - other.W};
+			return {x - other.x, y - other.y, z - other.z, w - other.w};
 		}
 
 		auto operator*(const Vector4& other) const -> Vector4
 		{
-			return {X * other.X, Y * other.Y, Z * other.Z, W * other.W};
+			return {x * other.x, y * other.y, z * other.z, w * other.w};
 		}
 
 		auto operator/(const Vector4& other) const -> Vector4
 		{
-			return {X / other.X, Y / other.Y, Z / other.Z, W / other.W};
+			return {x / other.x, y / other.y, z / other.z, w / other.w};
 		}
 
 		auto operator+(float scalar) const -> Vector4
 		{
-			return {X + scalar, Y + scalar, Z + scalar, W + scalar};
+			return {x + scalar, y + scalar, z + scalar, w + scalar};
 		}
 
 		auto operator-(float scalar) const -> Vector4
 		{
-			return {X - scalar, Y - scalar, Z - scalar, W - scalar};
+			return {x - scalar, y - scalar, z - scalar, w - scalar};
 		}
 
 		auto operator*(float scalar) const -> Vector4
 		{
-			return {X * scalar, Y * scalar, Z * scalar, W * scalar};
+			return {x * scalar, y * scalar, z * scalar, w * scalar};
 		}
 
 		auto operator/(float scalar) const -> Vector4
 		{
-			return {X / scalar, Y / scalar, Z / scalar, W / scalar};
+			return {x / scalar, y / scalar, z / scalar, w / scalar};
 		}
 
 		auto operator==(const Vector4& other) const -> bool
 		{
-			return X == other.X && Y == other.Y && Z == other.Z && W == other.W;
+			return x == other.x && y == other.y && z == other.z && w == other.w;
 		}
 
 		auto operator!=(const Vector4& other) const -> bool
@@ -67,32 +67,32 @@ namespace math
 
 		auto operator<=(const Vector4& other) const -> bool
 		{
-			return X <= other.X && Y <= other.Y && Z <= other.Z && W <= other.W;
+			return x <= other.x && y <= other.y && z <= other.z && w <= other.w;
 		}
 
 		auto operator>=(const Vector4& other) const -> bool
 		{
-			return X >= other.X && Y >= other.Y && Z >= other.Z && W >= other.W;
+			return x >= other.x && y >= other.y && z >= other.z && w >= other.w;
 		}
 
 		[[nodiscard]] auto Negate() const -> Vector4
 		{
-			return {-X, -Y, -Z, -W};
+			return {-x, -y, -z, -w};
 		}
 
 		[[nodiscard]] auto Min(const Vector4& b) const -> Vector4
 		{
-			return {std::min(X, b.X), std::min(Y, b.Y), std::min(Z, b.Z), std::min(W, b.W)};
+			return {std::min(x, b.x), std::min(y, b.y), std::min(z, b.z), std::min(w, b.w)};
 		}
 
 		[[nodiscard]] auto Max(const Vector4& b) const -> Vector4
 		{
-			return {std::max(X, b.X), std::max(Y, b.Y), std::max(Z, b.Z), std::max(W, b.W)};
+			return {std::max(x, b.x), std::max(y, b.y), std::max(z, b.z), std::max(w, b.w)};
 		}
 
 		[[nodiscard]] auto Absolute() const -> Vector4
 		{
-			return {std::abs(X), std::abs(Y), std::abs(Z), std::abs(W)};
+			return {std::abs(x), std::abs(y), std::abs(z), std::abs(w)};
 		}
 
 		[[nodiscard]] auto Length() const -> float
@@ -102,33 +102,33 @@ namespace math
 
 		[[nodiscard]] auto LengthSquared() const -> float
 		{
-			return (X * X) + (Y * Y) + (Z * Z) + (W * W);
+			return (x * x) + (y * y) + (z * z) + (w * w);
 		}
 
 		[[nodiscard]] auto Normalized() const -> Vector4
 		{
 			float length = Length();
-			return {X / length, Y / length, Z / length, W / length};
+			return {x / length, y / length, z / length, w / length};
 		}
 
 		void Normalize()
 		{
 			float length = Length();
-			X /= length;
-			Y /= length;
-			Z /= length;
-			W /= length;
+			x /= length;
+			y /= length;
+			z /= length;
+			w /= length;
 		}
 
 		[[nodiscard]] auto Dot(const Vector4& other) const -> float
 		{
-			return (X * other.X) + (Y * other.Y) + (Z * other.Z) + (W * other.W);
+			return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w);
 		}
 
 		[[nodiscard]] auto Cross(const Vector4& other) const -> Vector4
 		{
-			return {(Y * other.Z) - (Z * other.Y), (Z * other.X) - (X * other.Z),
-					(X * other.Y) - (Y * other.X), 0.0F};
+			return {(y * other.z) - (z * other.y), (z * other.x) - (x * other.z),
+					(x * other.y) - (y * other.x), 0.0F};
 		}
 
 		[[nodiscard]] auto Angle(const Vector4& other) const -> float
@@ -138,8 +138,8 @@ namespace math
 
 		[[nodiscard]] auto Lerp(const Vector4& other, float t) const -> Vector4
 		{
-			return {X + ((other.X - X) * t), Y + ((other.Y - Y) * t),
-					Z + ((other.Z - Z) * t), W + ((other.W - W) * t)};
+			return {x + ((other.x - x) * t), y + ((other.y - y) * t),
+					z + ((other.z - z) * t), w + ((other.w - w) * t)};
 		}
 
 		[[nodiscard]] auto Slerp(const Vector4& other, float t) const -> Vector4
@@ -154,10 +154,10 @@ namespace math
 
 		[[nodiscard]] auto DistanceSquared(const Vector4& other) const -> float
 		{
-			return ((X - other.X) * (X - other.X)) +
-				   ((Y - other.Y) * (Y - other.Y)) +
-				   ((Z - other.Z) * (Z - other.Z)) +
-				   ((W - other.W) * (W - other.W));
+			return ((x - other.x) * (x - other.x)) +
+				   ((y - other.y) * (y - other.y)) +
+				   ((z - other.z) * (z - other.z)) +
+				   ((w - other.w) * (w - other.w));
 		}
 
 		[[nodiscard]] auto Reflect(const Vector4& normal) const -> Vector4
@@ -167,12 +167,12 @@ namespace math
 
 		[[nodiscard]] auto Refract(const Vector4& other, float eta) const -> Vector4
 		{
-			return {X * eta, Y * eta, Z * eta, W * eta};
+			return {x * eta, y * eta, z * eta, w * eta};
 		}
 
 		[[nodiscard]] auto Rcp() const -> Vector4
 		{
-			return {1.0F / X, 1.0F / Y, 1.0F / Z, 1.0F / W};
+			return {1.0F / x, 1.0F / y, 1.0F / z, 1.0F / w};
 		}
 
 		[[nodiscard]] auto LengthInverse() const -> Vector4
@@ -182,15 +182,15 @@ namespace math
 
 		[[nodiscard]] auto ToVector3() const -> Vector3
 		{
-			return {X, Y, Z};
+			return {x, y, z};
 		}
 
 		[[nodiscard]] auto ToVector2() const -> Vector2
 		{
-			return {X, Y};
+			return {x, y};
 		}
 
-		static auto Zero() -> Vector4
+		static auto zero() -> Vector4
 		{
 			return {0.0F, 0.0F, 0.0F};
 		}
