@@ -2,7 +2,8 @@ project('glad', 'c', version: '21.05.25')
 
 sources = [
     'src/egl.c',
-    'src/gl.c'
+    'src/gl.c',
+    'src/volk.c'
 ]
 
 libglad = shared_library(
