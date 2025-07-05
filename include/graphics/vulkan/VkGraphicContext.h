@@ -1,7 +1,10 @@
 #pragma once
 #include "glad/volk.h"
 #include "graphics/GraphicContext.h"
+#include "graphics/vulkan/VkGraphicDevice.h"
+#include <memory>
 #include <vector>
+#include "core/log.h"
 
 #ifdef DEBUG
 #	define es_vkCall(call)                                                              \
@@ -34,6 +37,9 @@ namespace graphics::vk
 		platform::Window* window;
 
 		VkInstance instance{nullptr};
+        std::unique_ptr<VkGraphicDevice> device;
+		VkSurfaceKHR surface;
+
 		VkDebugUtilsMessengerEXT debugMessenger;
 
 	private:
@@ -41,7 +47,8 @@ namespace graphics::vk
 		void _retrieveRequiredInstanceExtensions();
 		void _queryInstanceExtensions();
         void _setupDebugCallback();
-
+        void _pickDevice();
+		
 		static auto supportsValidationLayers(const std::vector<const char*>& layers)
 			-> bool;
 

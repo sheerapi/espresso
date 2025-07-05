@@ -1,5 +1,10 @@
 /* This file is part of volk library; see volk.h for version/license details */
 /* clang-format off */
+#ifdef __linux__
+#define VK_KHR_wayland_surface 1
+#define VK_USE_PLATFORM_WAYLAND_KHR 1
+#endif
+
 #include "glad/volk.h"
 
 #ifdef _WIN32

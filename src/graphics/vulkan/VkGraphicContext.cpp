@@ -3,6 +3,8 @@
 #include "core/Application.h"
 #include "core/log.h"
 #include "glad/volk.h"
+#include "graphics/Swapchain.h"
+#include "graphics/vulkan/VkGraphicDevice.h"
 
 #define es_vkMsgSeverity VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
 
@@ -25,8 +27,20 @@ namespace graphics::vk
 		_queryInstanceExtensions();
 		_setupDebugCallback();
 
-		log_info("initialized vulkan instance (%u supported extensions)",
-				 extensions.size());
+		log_info("initialized vulkan instance (enabled %u out of %u supported extensions)",
+				requiredInstanceExtensions.size(), extensions.size());
+
+		if (SDL_Vulkan_CreateSurface((SDL_Window*)window->getWindowHandle(), instance,
+									 &surface) != SDL_TRUE)
+		{
+			log_fatal("failed to create vulkan surface: %s", SDL_GetError());
+			return;
+		}
+
+		_pickDevice();
+		swapchain = Swapchain::create(window);
+
+		log_trace("created vulkan surface");
 	}
 
 	VkGraphicContext::~VkGraphicContext()
@@ -35,6 +49,9 @@ namespace graphics::vk
 		{
 			return;
 		}
+
+		device.reset();
+		vkDestroySurfaceKHR(instance, surface, nullptr);
 
 #ifdef DEBUG
 		vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
@@ -56,12 +73,53 @@ namespace graphics::vk
 	{
 	}
 
+	void VkGraphicContext::_pickDevice()
+	{
+		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+		uint32_t deviceCount = 0;
+		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+		if (deviceCount == 0)
+		{
+			log_fatal("no gpus found supporting Vulkan!");
+			return;
+		}
+
+		std::vector<VkPhysicalDevice> devices(deviceCount);
+		std::vector<VkPhysicalDevice> suitableDevices;
+		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+		for (auto* device : devices)
+		{
+			if (VkGraphicDevice::isDeviceSuitable(device, surface))
+			{
+				suitableDevices.push_back(device);
+			}
+		}
+
+		if (suitableDevices.size() == 0)
+		{
+			log_fatal("no suitable gpus found!");
+			return;
+		}
+
+		log_info("found %d suitable gpus", suitableDevices.size());
+
+		// change this to whatever picking solution you want
+		physicalDevice = suitableDevices[0];
+
+		device = std::make_unique<VkGraphicDevice>(physicalDevice, surface);
+	}
+
+	// Utilities
+
 	void VkGraphicContext::_retrieveRequiredInstanceExtensions()
 	{
 		uint32_t extensionCount;
 		SDL_Vulkan_GetInstanceExtensions((SDL_Window*)window->getWindowHandle(),
 										 &extensionCount, nullptr);
-		requiredInstanceExtensions.reserve(extensionCount);
+		requiredInstanceExtensions = std::vector<const char*>(extensionCount);
 
 		SDL_Vulkan_GetInstanceExtensions((SDL_Window*)window->getWindowHandle(),
 										 &extensionCount,

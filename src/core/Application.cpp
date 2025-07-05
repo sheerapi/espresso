@@ -72,6 +72,9 @@ namespace core
 		{
 			es_stopwatchNamed("platform backend init");
 
+#ifdef __linux__
+			SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland");
+#endif
 			if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_TIMER |
 						 SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC | SDL_INIT_JOYSTICK) <
 				0)

@@ -1,5 +1,6 @@
 #pragma once
 #include "graphics/GraphicDevice.h"
+#include "graphics/Swapchain.h"
 #include "platform/Window.h"
 #include <cstdint>
 #include <memory>
@@ -25,5 +26,6 @@ namespace graphics
 
     protected:
         std::unique_ptr<GraphicDevice> device;
+        std::unique_ptr<Swapchain> swapchain;
 	};
 }
