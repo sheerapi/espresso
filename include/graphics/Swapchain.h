@@ -4,12 +4,16 @@
 
 namespace graphics
 {
-    class Swapchain
-    {
-    public:
-        virtual void init(platform::Window* window) {};
-        virtual void recreate() {};
+	class GraphicContext;
 
-        static auto create(platform::Window* window) -> std::unique_ptr<Swapchain>;
-    };
+	class Swapchain
+	{
+	public:
+        virtual ~Swapchain() = default;
+
+		virtual void init(platform::Window* window) {};
+		virtual void recreate() {};
+
+		static auto create(platform::Window* window, GraphicContext* context) -> std::unique_ptr<Swapchain>;
+	};
 }

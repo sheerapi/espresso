@@ -37,6 +37,16 @@ namespace graphics::vk
 		void endFrame() override;
 		void submit() override;
 
+		auto getPhysicalDevice() -> VkPhysicalDevice
+		{
+			return physicalDevice;
+		}
+
+		auto getDevice() -> VkDevice
+		{
+			return device;
+		}
+
 	protected:
 		VkPhysicalDevice physicalDevice;
 		VkDevice device;

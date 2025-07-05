@@ -2,6 +2,7 @@
 #include "graphics/GraphicDevice.h"
 #include "graphics/Swapchain.h"
 #include "platform/Window.h"
+#include <cassert>
 #include <cstdint>
 #include <memory>
 

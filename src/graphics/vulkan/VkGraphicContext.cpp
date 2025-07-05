@@ -38,9 +38,9 @@ namespace graphics::vk
 		}
 
 		_pickDevice();
-		swapchain = Swapchain::create(window);
-
 		log_trace("created vulkan surface");
+
+		swapchain = Swapchain::create(window, this);
 	}
 
 	VkGraphicContext::~VkGraphicContext()
@@ -50,6 +50,7 @@ namespace graphics::vk
 			return;
 		}
 
+		swapchain.reset();
 		device.reset();
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 
@@ -92,7 +93,7 @@ namespace graphics::vk
 
 		for (auto* device : devices)
 		{
-			if (VkGraphicDevice::isDeviceSuitable(device, surface))
+			if (VkGraphicDevice::isDeviceSuitable(device, getSurface()))
 			{
 				suitableDevices.push_back(device);
 			}

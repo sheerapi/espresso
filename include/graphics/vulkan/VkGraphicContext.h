@@ -2,6 +2,7 @@
 #include "glad/volk.h"
 #include "graphics/GraphicContext.h"
 #include "graphics/vulkan/VkGraphicDevice.h"
+#include <cassert>
 #include <memory>
 #include <vector>
 #include "core/log.h"
@@ -31,14 +32,18 @@ namespace graphics::vk
 		auto getBackend() -> uint32_t override;
 		void setVsync(bool vsync) override;
 
+		auto getSurface() -> VkSurfaceKHR
+		{
+			return surface;
+		}
+
 	protected:
 		std::vector<const char*> requiredInstanceExtensions;
 		std::vector<VkExtensionProperties> extensions;
 		platform::Window* window;
 
 		VkInstance instance{nullptr};
-        std::unique_ptr<VkGraphicDevice> device;
-		VkSurfaceKHR surface;
+		VkSurfaceKHR surface{nullptr};
 
 		VkDebugUtilsMessengerEXT debugMessenger;
 

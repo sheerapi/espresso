@@ -1,5 +1,6 @@
 #include "graphics/vulkan/VkGraphicDevice.h"
 #include "graphics/vulkan/VkGraphicContext.h"
+#include "graphics/vulkan/VkSwapchain.h"
 #include <set>
 #include <vector>
 
@@ -24,8 +25,7 @@ namespace graphics::vk
 			createInfo.pEnabledFeatures = &deviceFeatures;
 
 			std::vector<const char*> extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-			createInfo.enabledExtensionCount =
-				static_cast<uint32_t>(extensions.size());
+			createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 			createInfo.ppEnabledExtensionNames = extensions.data();
 
 			es_vkCall(
@@ -80,8 +80,18 @@ namespace graphics::vk
 
 		QueueFamilyIndices indices = findQueueFamilies(device, surface);
 
-		return indices.isComplete() &&
-			   checkDeviceExtensionSupport(device, {VK_KHR_SWAPCHAIN_EXTENSION_NAME});
+		bool extensionsSupported =
+			checkDeviceExtensionSupport(device, {VK_KHR_SWAPCHAIN_EXTENSION_NAME});
+
+		bool swapChainAdequate = false;
+		if (extensionsSupported)
+		{
+			auto swapChainSupport = VkSwapchain::querySwapChainSupport(device, surface);
+			swapChainAdequate = !swapChainSupport.formats.empty() &&
+								!swapChainSupport.presentModes.empty();
+		}
+
+		return indices.isComplete() && extensionsSupported && swapChainAdequate;
 	}
 
 	auto VkGraphicDevice::findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)

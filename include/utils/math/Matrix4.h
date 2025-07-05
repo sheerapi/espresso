@@ -1,10 +1,10 @@
 #pragma once
+#define CGLM_FORCE_LEFT_HANDED 1
 #include "cglm/affine.h"
 #include "cglm/affine-pre.h"
 
 #include "cglm/cam.h"
 #include "utils/math/Quaternion.h"
-#define CGLM_FORCE_LEFT_HANDED 1
 #include "cglm/mat4.h"
 #include "utils/math/Vector4.h"
 #include "utils/math/Vector3.h"
