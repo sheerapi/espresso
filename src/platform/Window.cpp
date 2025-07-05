@@ -1,7 +1,7 @@
 #include "platform/Window.h"
 #include "SDL_events.h"
 #include "SDL_video.h"
-#include "graphics/GraphicDevice.h"
+#include "graphics/GraphicContext.h"
 #include "core/EventManager.h"
 #include "core/log.h"
 #include "utils/PerformanceTimer.h"
@@ -19,14 +19,14 @@ namespace platform
 	{
 		es_stopwatchNamed("window creation");
 		
-		auto* testDevice = graphics::GraphicDevice::getGraphicDevice();
+		auto* testContext = graphics::GraphicContext::getGraphicContext();
 
 		_window = SDL_CreateWindow(_title.c_str(), SDL_WINDOWPOS_UNDEFINED,
 								   SDL_WINDOWPOS_UNDEFINED, _width, _height,
 								   SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI |
-									   testDevice->getBackend());
+									   testContext->getBackend());
 
-		delete testDevice;
+		delete testContext;
 
 		SDL_SetWindowData(_window, "handle", this);
 		

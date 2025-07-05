@@ -1,5 +1,5 @@
 #pragma once
-#include "graphics/GraphicDevice.h"
+#include "graphics/GraphicContext.h"
 #include "platform/Thread.h"
 
 namespace graphics
@@ -12,6 +12,6 @@ namespace graphics
         void update() override;
 
     private:
-        GraphicDevice* _device;
+        GraphicContext* _context;
     };
 }

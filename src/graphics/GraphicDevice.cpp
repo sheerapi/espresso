@@ -1,10 +1,10 @@
-#include "graphics/GraphicDevice.h"
-#include "graphics/ogl/GLGraphicDevice.h"
+#include "graphics/GraphicContext.h"
+#include "graphics/vulkan/VkGraphicContext.h"
 
 namespace graphics
 {
-	auto GraphicDevice::getGraphicDevice() -> GraphicDevice*
+	auto GraphicContext::getGraphicContext() -> GraphicContext*
     {
-        return new gl::GraphicDeviceGL();
+        return new vk::VkGraphicContext();
     }
 }

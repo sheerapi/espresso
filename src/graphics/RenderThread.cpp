@@ -1,6 +1,7 @@
 #include "graphics/RenderThread.h"
 #include "core/Application.h"
 #include "core/Scene.h"
+#include "graphics/GraphicContext.h"
 #include "utils/Demangle.h"
 #include "utils/PerformanceTimer.h"
 
@@ -10,18 +11,17 @@ namespace graphics
 	{
 		core::threadName = "render";
 
-		_device = GraphicDevice::getGraphicDevice();
-		_device->setup(core::Application::main->getWindow());
+		_context = GraphicContext::getGraphicContext();
 		{
-			es_stopwatchNamed(es_type(*_device));
-			_device->init();
+			es_stopwatchNamed(es_type(*_context));
+			_context->init(core::Application::main->getWindow());
 		}
 	}
 
 	void RenderThread::update()
 	{
-		_device->makeCurrent();
-		_device->beginFrame();
+		_context->makeCurrent();
+		_context->getDevice()->beginFrame();
 
 		for (auto* camera : core::Scene::currentScene->getCameras())
 		{
@@ -29,12 +29,12 @@ namespace graphics
 			camera->render();
 		}
 
-		_device->endFrame();
-		_device->submit();
+		_context->getDevice()->endFrame();
+		_context->getDevice()->submit();
 	}
 
 	void RenderThread::shutdown()
 	{
-		delete _device;
+		delete _context;
 	}
 }

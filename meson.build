@@ -17,16 +17,18 @@ sources = [
 	'src/utils/Demangle.cpp',
 	'src/platform/Thread.cpp',
 	'src/platform/ThreadManager.cpp',
-	'src/graphics/GraphicDevice.cpp',
-	'src/graphics/RenderThread.cpp',
-	'src/graphics/ogl/GLGraphicDevice.cpp',
 	'src/platform/AssetManager.cpp',
 	'src/utils/PerformanceTimer.cpp',
 	'src/core/Scene.cpp',
 	'src/core/TickThread.cpp',
 	'src/core/Transform.cpp',
 	'src/platform/JobScheduler.cpp',
-	'src/components/graphics/Camera.cpp'
+	'src/components/graphics/Camera.cpp',
+
+	'src/graphics/GraphicDevice.cpp',
+	'src/graphics/RenderThread.cpp',
+	'src/graphics/vulkan/VkGraphicDevice.cpp',
+	'src/graphics/vulkan/VkGraphicContext.cpp'
 ]
 
 if get_option('debug')
