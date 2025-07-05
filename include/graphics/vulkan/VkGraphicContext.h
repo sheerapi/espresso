@@ -33,11 +33,21 @@ namespace graphics::vk
 		std::vector<VkExtensionProperties> extensions;
 		platform::Window* window;
 
-		VkInstance instance;
+		VkInstance instance{nullptr};
+		VkDebugUtilsMessengerEXT debugMessenger;
 
 	private:
 		void _createInstance();
 		void _retrieveRequiredInstanceExtensions();
-        void _queryInstanceExtensions();
+		void _queryInstanceExtensions();
+        void _setupDebugCallback();
+
+		static auto supportsValidationLayers(const std::vector<const char*>& layers)
+			-> bool;
+
+		static auto debugCallback(
+			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+			VkDebugUtilsMessageTypeFlagsEXT messageType,
+			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) -> VkBool32;
 	};
 }

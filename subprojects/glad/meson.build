@@ -6,23 +6,15 @@ sources = [
     'src/volk.c'
 ]
 
-libglad = shared_library(
+libglad = static_library(
     'glad',
     sources,
-    include_directories: include_directories('include'),
-    dependencies: [
-        dependency('egl', required: false),
-        dependency('gl', required: false)
-    ]
+    include_directories: include_directories('include')
 )
 
 libglad_dep = declare_dependency(
     include_directories: include_directories('include'),
-    link_with: libglad,
-    dependencies: [
-        dependency('egl', required: false),
-        dependency('gl', required: false)
-    ]
+    link_with: libglad
 )
 
 meson.override_dependency(

@@ -20,7 +20,7 @@ namespace graphics
 
 	void RenderThread::update()
 	{
-		_context->makeCurrent();
+		/* _context->makeCurrent();
 		_context->getDevice()->beginFrame();
 
 		for (auto* camera : core::Scene::currentScene->getCameras())
@@ -30,7 +30,7 @@ namespace graphics
 		}
 
 		_context->getDevice()->endFrame();
-		_context->getDevice()->submit();
+		_context->getDevice()->submit();*/
 	}
 
 	void RenderThread::shutdown()
