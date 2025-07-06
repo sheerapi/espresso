@@ -2,6 +2,8 @@
 #include "glad/volk.h"
 #include "graphics/Swapchain.h"
 #include "graphics/vulkan/VkGraphicContext.h"
+#include "graphics/vulkan/VkGraphicDevice.h"
+#include "graphics/vulkan/VkTexture2D.h"
 #include <vector>
 
 namespace graphics::vk
@@ -37,12 +39,15 @@ namespace graphics::vk
 		VkExtent2D size;
 		VkSurfaceCapabilitiesKHR capabilities;
 		VkGraphicContext* context;
+		VkGraphicDevice* device;
+		std::vector<std::shared_ptr<VkTexture2D>> renderTargets;
 
 		VkSwapchainKHR swapchain{nullptr};
 
 	private:
 		void _createSwapchain();
-		void _setupQueueFamilies(VkSwapchainCreateInfoKHR info);
+		void _createRenderTargets();
+		void _setupQueueFamilies(VkSwapchainCreateInfoKHR& info);
 
 		static auto chooseSwapSurfaceFormat(
 			const std::vector<VkSurfaceFormatKHR>& availableFormats)

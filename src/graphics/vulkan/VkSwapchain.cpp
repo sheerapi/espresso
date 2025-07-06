@@ -8,21 +8,22 @@ namespace graphics::vk
 {
 	void VkSwapchain::init(platform::Window* window)
 	{
+		device = (VkGraphicDevice*)context->getDevice();
 		_createSwapchain();
+		_createRenderTargets();
 	}
 
 	VkSwapchain::~VkSwapchain()
 	{
-		vkDestroySwapchainKHR(((VkGraphicDevice*)context->getDevice())->getDevice(),
-							  swapchain, nullptr);
+		vkDestroySwapchainKHR(device->getDevice(), swapchain, nullptr);
 	}
 
 	void VkSwapchain::recreate()
 	{
 	}
 
-    void VkSwapchain::_createSwapchain()
-    {
+	void VkSwapchain::_createSwapchain()
+	{
 		uint32_t imageCount = capabilities.minImageCount;
 		if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount)
 		{
@@ -40,7 +41,7 @@ namespace graphics::vk
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        _setupQueueFamilies(createInfo);
+		_setupQueueFamilies(createInfo);
 
 		createInfo.preTransform = capabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
@@ -51,14 +52,53 @@ namespace graphics::vk
 		createInfo.oldSwapchain = swapchain;
 
 		es_vkCall(
-			vkCreateSwapchainKHR(((VkGraphicDevice*)context->getDevice())->getDevice(),
+			vkCreateSwapchainKHR(device->getDevice(),
 								 &createInfo, nullptr, &swapchain));
 	}
 
-	void VkSwapchain::_setupQueueFamilies(VkSwapchainCreateInfoKHR info)
-    {
+	void VkSwapchain::_createRenderTargets()
+	{
+		uint32_t imageCount;
+
+		std::vector<VkImage> swapChainImages;
+		vkGetSwapchainImagesKHR(device->getDevice(), swapchain, &imageCount, nullptr);
+		swapChainImages.resize(imageCount);
+		vkGetSwapchainImagesKHR(device->getDevice(), swapchain, &imageCount, swapChainImages.data());
+
+		std::vector<VkImageView> swapChainImageViews(swapChainImages.size());
+		for (size_t i = 0; i < imageCount; i++)
+		{
+			VkImageViewCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = swapChainImages[i];
+
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = format.format;
+
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			renderTargets.push_back(device->createTexture(createInfo, swapChainImages[i]));
+		}
+
+		log_info("created swapchain (%dx%d in %d render targets)", size.width, size.height, imageCount, renderTargets.size());
+	}
+
+	void VkSwapchain::_setupQueueFamilies(VkSwapchainCreateInfoKHR& info)
+	{
+		device->getPhysicalDevice();
+		context->getSurface();
+
 		QueueFamilyIndices indices = VkGraphicDevice::findQueueFamilies(
-			((VkGraphicDevice*)context->getDevice())->getPhysicalDevice(),
+			device->getPhysicalDevice(),
 			context->getSurface());
 		uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(),
 										 indices.presentFamily.value()};
@@ -72,7 +112,7 @@ namespace graphics::vk
 		else
 		{
 			info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			info.queueFamilyIndexCount = 0;			  // Optional
+			info.queueFamilyIndexCount = 0;		// Optional
 			info.pQueueFamilyIndices = nullptr; // Optional
 		}
 	}
@@ -92,8 +132,8 @@ namespace graphics::vk
 
 		auto swapchain =
 			std::make_unique<VkSwapchain>(surfaceFormat, presentMode, extent);
-        swapchain->capabilities = swapChainSupport.capabilities;
-        swapchain->context = context;
+		swapchain->capabilities = swapChainSupport.capabilities;
+		swapchain->context = context;
 		swapchain->init(window);
 
 		return swapchain;

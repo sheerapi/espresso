@@ -1,6 +1,7 @@
 #include "graphics/vulkan/VkGraphicDevice.h"
 #include "graphics/vulkan/VkGraphicContext.h"
 #include "graphics/vulkan/VkSwapchain.h"
+#include "graphics/vulkan/VkTexture2D.h"
 #include <set>
 #include <vector>
 
@@ -54,6 +55,11 @@ namespace graphics::vk
 			return;
 		}
 
+		for (auto& res : resources)
+		{
+			res.second.reset();
+		}
+
 		vkDestroyDevice(device, nullptr);
 	}
 
@@ -67,6 +73,14 @@ namespace graphics::vk
 
 	void VkGraphicDevice::submit()
 	{
+	}
+
+	auto VkGraphicDevice::createTexture(VkImageViewCreateInfo viewInfo, VkImage image)
+		-> std::shared_ptr<VkTexture2D>
+	{
+		auto texture = std::make_shared<VkTexture2D>(device, viewInfo, image);
+		resources[texture->getId()] = texture;
+		return texture;
 	}
 
 	auto VkGraphicDevice::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)

@@ -1,9 +1,7 @@
 #pragma once
 #include "glad/volk.h"
 #include "graphics/GraphicContext.h"
-#include "graphics/vulkan/VkGraphicDevice.h"
 #include <cassert>
-#include <memory>
 #include <vector>
 #include "core/log.h"
 
