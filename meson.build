@@ -31,7 +31,8 @@ sources = [
 	'src/graphics/vulkan/VkGraphicDevice.cpp',
 	'src/graphics/vulkan/VkGraphicContext.cpp',
 	'src/graphics/vulkan/VkSwapchain.cpp',
-	'src/graphics/vulkan/VkTexture2D.cpp'
+	'src/graphics/vulkan/VkTexture2D.cpp',
+	'src/graphics/vulkan/VkShader.cpp'
 ]
 
 if get_option('debug')
@@ -44,7 +45,8 @@ dependencies = [
 	dependency('luajit'),
 	dependency('libzstd'),
 	dependency('cglm'),
-	dependency('vulkan-memory-allocator')
+	dependency('vulkan-memory-allocator'),
+	dependency('shaderc')
 ]
 
 espresso_lib = library(
