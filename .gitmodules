@@ -1,0 +1,3 @@
+[submodule "subprojects/shaderc"]
+	path = subprojects/shaderc
+	url = https://github.com/google/shaderc
