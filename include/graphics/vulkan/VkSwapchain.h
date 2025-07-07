@@ -26,6 +26,7 @@ namespace graphics::vk
 
 		void init(platform::Window* window) override;
 		void recreate() override;
+		auto getFrameCount() -> int override;
 
 		static auto create(platform::Window* window, VkGraphicContext* context)
 			-> std::unique_ptr<Swapchain>;

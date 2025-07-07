@@ -1,4 +1,6 @@
 #include "graphics/vulkan/VkGraphicDevice.h"
+#include "graphics/CommandList.h"
+#include "graphics/vulkan/VkCommandList.h"
 #include "graphics/vulkan/VkGraphicContext.h"
 #include "graphics/vulkan/VkSwapchain.h"
 #include "graphics/vulkan/VkTexture2D.h"
@@ -55,6 +57,8 @@ namespace graphics::vk
 			return;
 		}
 
+		vkDeviceWaitIdle(device);
+
 		for (auto& res : resources)
 		{
 			res.second.reset();
@@ -81,6 +85,13 @@ namespace graphics::vk
 		auto texture = std::make_shared<VkTexture2D>(device, viewInfo, image);
 		resources[texture->getId()] = texture;
 		return texture;
+	}
+
+	auto VkGraphicDevice::createCmdList() -> std::shared_ptr<CommandList>
+	{
+		auto cmd = std::make_shared<VkCommandList>(this);
+		resources[cmd->getId()] = cmd;
+		return cmd;
 	}
 
 	auto VkGraphicDevice::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)

@@ -225,4 +225,9 @@ namespace graphics::vk
 
 		return details;
 	}
+
+	auto VkSwapchain::getFrameCount() -> int
+	{
+		return (int)renderTargets.size();
+	}
 }

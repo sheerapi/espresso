@@ -1,6 +1,6 @@
 #pragma once
+#include "graphics/CommandList.h"
 #include "graphics/GraphicResource.h"
-#include "graphics/Shader.h"
 #include <memory>
 #include <unordered_map>
 
@@ -16,10 +16,10 @@ namespace graphics
 		virtual void endFrame() {};
 		virtual void submit() {};
 
-		virtual auto genShaderSource(const char* source, ShaderType type)
-			-> std::unique_ptr<ShaderSource>;
-            
-        virtual auto genShader() -> std::shared_ptr<Shader>;
+		virtual auto createCmdList() -> std::shared_ptr<CommandList>
+		{
+			return nullptr;
+		}
 
 	protected:
 		std::unordered_map<unsigned int, std::shared_ptr<GraphicResource>> resources;

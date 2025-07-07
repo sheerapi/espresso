@@ -41,6 +41,13 @@ namespace graphics::vk
 		log_trace("created vulkan surface");
 
 		swapchain = Swapchain::create(window, this);
+
+		cmdLists.resize(swapchain->getFrameCount());
+
+		for (auto i = 0; i < swapchain->getFrameCount(); i++)
+		{
+			cmdLists[i] = device->createCmdList();
+		}
 	}
 
 	VkGraphicContext::~VkGraphicContext()
@@ -49,6 +56,8 @@ namespace graphics::vk
 		{
 			return;
 		}
+
+		cmdLists.clear();
 
 		swapchain.reset();
 		device.reset();

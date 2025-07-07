@@ -32,7 +32,7 @@ sources = [
 	'src/graphics/vulkan/VkGraphicContext.cpp',
 	'src/graphics/vulkan/VkSwapchain.cpp',
 	'src/graphics/vulkan/VkTexture2D.cpp',
-	'src/graphics/vulkan/VkShader.cpp'
+	'src/graphics/vulkan/VkCommandList.cpp'
 ]
 
 if get_option('debug')

@@ -41,6 +41,8 @@ namespace graphics::vk
 		auto createTexture(VkImageViewCreateInfo viewInfo, VkImage image)
 			-> std::shared_ptr<VkTexture2D>;
 
+		auto createCmdList() -> std::shared_ptr<CommandList> override;
+
 		auto getPhysicalDevice() -> VkPhysicalDevice
 		{
 			return physicalDevice;
@@ -49,6 +51,21 @@ namespace graphics::vk
 		auto getDevice() -> VkDevice
 		{
 			return device;
+		}
+
+		auto getFamilyIndices() -> QueueFamilyIndices
+		{
+			return indices;
+		}
+
+		auto getGraphicQueue() -> VkQueue
+		{
+			return graphicsQueue;
+		}
+
+		auto getPresentQueue() -> VkQueue
+		{
+			return presentQueue;
 		}
 
 	protected:

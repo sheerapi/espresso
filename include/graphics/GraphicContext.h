@@ -5,28 +5,30 @@
 #include <cassert>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace graphics
 {
-    class GraphicContext
-    {
-    public:
-        virtual ~GraphicContext() = default;
+	class GraphicContext
+	{
+	public:
+		virtual ~GraphicContext() = default;
 
-        virtual void init(platform::Window* window) = 0;
+		virtual void init(platform::Window* window) = 0;
 		virtual void makeCurrent() {};
 		virtual auto getBackend() -> uint32_t = 0;
 		virtual void setVsync(bool vsync) {};
 
 		auto getDevice() -> GraphicDevice*
-        {
-            return device.get();
-        }
+		{
+			return device.get();
+		}
 
 		static auto getGraphicContext() -> GraphicContext*;
 
-    protected:
-        std::unique_ptr<GraphicDevice> device;
-        std::unique_ptr<Swapchain> swapchain;
+	protected:
+		std::unique_ptr<GraphicDevice> device;
+		std::unique_ptr<Swapchain> swapchain;
+		std::vector<std::shared_ptr<CommandList>> cmdLists;
 	};
 }
