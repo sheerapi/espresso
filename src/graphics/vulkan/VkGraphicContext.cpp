@@ -3,7 +3,6 @@
 #include "core/Application.h"
 #include "core/log.h"
 #include "glad/volk.h"
-#include "graphics/Swapchain.h"
 #include "graphics/vulkan/VkGraphicDevice.h"
 
 #define es_vkMsgSeverity VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
@@ -40,14 +39,14 @@ namespace graphics::vk
 		_pickDevice();
 		log_trace("created vulkan surface");
 
-		swapchain = Swapchain::create(window, this);
+		/* swapchain = Swapchain::create(window, this);
 
 		cmdLists.resize(swapchain->getFrameCount());
 
 		for (auto i = 0; i < swapchain->getFrameCount(); i++)
 		{
 			cmdLists[i] = device->createCmdList();
-		}
+		} */
 	}
 
 	VkGraphicContext::~VkGraphicContext()
@@ -57,9 +56,6 @@ namespace graphics::vk
 			return;
 		}
 
-		cmdLists.clear();
-
-		swapchain.reset();
 		device.reset();
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 

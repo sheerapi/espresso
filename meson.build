@@ -27,12 +27,8 @@ sources = [
 
 	'src/graphics/GraphicDevice.cpp',
 	'src/graphics/RenderThread.cpp',
-	'src/graphics/Swapchain.cpp',
 	'src/graphics/vulkan/VkGraphicDevice.cpp',
 	'src/graphics/vulkan/VkGraphicContext.cpp',
-	'src/graphics/vulkan/VkSwapchain.cpp',
-	'src/graphics/vulkan/VkTexture2D.cpp',
-	'src/graphics/vulkan/VkCommandList.cpp'
 ]
 
 if get_option('debug')

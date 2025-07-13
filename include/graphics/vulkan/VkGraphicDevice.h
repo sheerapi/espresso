@@ -1,7 +1,6 @@
 #pragma once
 #include "../GraphicDevice.h"
 #include "glad/volk.h"
-#include "graphics/vulkan/VkTexture2D.h"
 #include <optional>
 #include <vector>
 
@@ -37,11 +36,6 @@ namespace graphics::vk
 		void beginFrame() override;
 		void endFrame() override;
 		void submit() override;
-
-		auto createTexture(VkImageViewCreateInfo viewInfo, VkImage image)
-			-> std::shared_ptr<VkTexture2D>;
-
-		auto createCmdList() -> std::shared_ptr<CommandList> override;
 
 		auto getPhysicalDevice() -> VkPhysicalDevice
 		{

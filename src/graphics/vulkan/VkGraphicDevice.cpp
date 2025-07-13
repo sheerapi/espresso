@@ -1,9 +1,5 @@
 #include "graphics/vulkan/VkGraphicDevice.h"
-#include "graphics/CommandList.h"
-#include "graphics/vulkan/VkCommandList.h"
 #include "graphics/vulkan/VkGraphicContext.h"
-#include "graphics/vulkan/VkSwapchain.h"
-#include "graphics/vulkan/VkTexture2D.h"
 #include <set>
 #include <vector>
 
@@ -58,12 +54,6 @@ namespace graphics::vk
 		}
 
 		vkDeviceWaitIdle(device);
-
-		for (auto& res : resources)
-		{
-			res.second.reset();
-		}
-
 		vkDestroyDevice(device, nullptr);
 	}
 
@@ -77,21 +67,6 @@ namespace graphics::vk
 
 	void VkGraphicDevice::submit()
 	{
-	}
-
-	auto VkGraphicDevice::createTexture(VkImageViewCreateInfo viewInfo, VkImage image)
-		-> std::shared_ptr<VkTexture2D>
-	{
-		auto texture = std::make_shared<VkTexture2D>(device, viewInfo, image);
-		resources[texture->getId()] = texture;
-		return texture;
-	}
-
-	auto VkGraphicDevice::createCmdList() -> std::shared_ptr<CommandList>
-	{
-		auto cmd = std::make_shared<VkCommandList>(this);
-		resources[cmd->getId()] = cmd;
-		return cmd;
 	}
 
 	auto VkGraphicDevice::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
@@ -108,13 +83,13 @@ namespace graphics::vk
 		bool extensionsSupported =
 			checkDeviceExtensionSupport(device, {VK_KHR_SWAPCHAIN_EXTENSION_NAME});
 
-		bool swapChainAdequate = false;
-		if (extensionsSupported)
+		bool swapChainAdequate = true;
+		/* if (extensionsSupported)
 		{
 			auto swapChainSupport = VkSwapchain::querySwapChainSupport(device, surface);
 			swapChainAdequate = !swapChainSupport.formats.empty() &&
 								!swapChainSupport.presentModes.empty();
-		}
+		} */
 
 		return indices.isComplete() && extensionsSupported && swapChainAdequate;
 	}
