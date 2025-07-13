@@ -1,10 +1,10 @@
 #include "graphics/GraphicContext.h"
-#include "graphics/vulkan/VkGraphicContext.h"
+#include "graphics/noop/NopGraphicContext.h"
 
 namespace graphics
 {
 	auto GraphicContext::getGraphicContext() -> GraphicContext*
     {
-        return new vk::VkGraphicContext();
+        return new nop::NopGraphicContext();
     }
 }

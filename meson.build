@@ -29,6 +29,9 @@ sources = [
 	'src/graphics/RenderThread.cpp',
 	'src/graphics/vulkan/VkGraphicDevice.cpp',
 	'src/graphics/vulkan/VkGraphicContext.cpp',
+
+	'src/graphics/noop/NopGraphicContext.cpp',
+	'src/graphics/noop/NopGraphicDevice.cpp'
 ]
 
 if get_option('debug')

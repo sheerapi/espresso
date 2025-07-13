@@ -33,10 +33,6 @@ namespace graphics::vk
 		static auto checkDeviceExtensionSupport(
 			VkPhysicalDevice device, const std::vector<const char*>& extensions) -> bool;
 
-		void beginFrame() override;
-		void endFrame() override;
-		void submit() override;
-
 		auto getPhysicalDevice() -> VkPhysicalDevice
 		{
 			return physicalDevice;

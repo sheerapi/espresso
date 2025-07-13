@@ -12,6 +12,8 @@ namespace graphics
 		core::threadName = "render";
 
 		_context = GraphicContext::getGraphicContext();
+		GraphicContext::current = _context;
+
 		{
 			es_stopwatchNamed(es_type(*_context));
 			_context->init(core::Application::main->getWindow());
@@ -20,8 +22,8 @@ namespace graphics
 
 	void RenderThread::update()
 	{
-		/* _context->makeCurrent();
-		_context->getDevice()->beginFrame();
+		_context->makeCurrent();
+		_context->beginFrame();
 
 		for (auto* camera : core::Scene::currentScene->getCameras())
 		{
@@ -29,8 +31,8 @@ namespace graphics
 			camera->render();
 		}
 
-		_context->getDevice()->endFrame();
-		_context->getDevice()->submit();*/
+		_context->endFrame();
+		_context->swap();
 	}
 
 	void RenderThread::shutdown()

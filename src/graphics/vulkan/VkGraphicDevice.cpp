@@ -57,18 +57,6 @@ namespace graphics::vk
 		vkDestroyDevice(device, nullptr);
 	}
 
-	void VkGraphicDevice::beginFrame()
-	{
-	}
-
-	void VkGraphicDevice::endFrame()
-	{
-	}
-
-	void VkGraphicDevice::submit()
-	{
-	}
-
 	auto VkGraphicDevice::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
 		-> bool
 	{
