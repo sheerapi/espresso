@@ -53,6 +53,10 @@ namespace core
 		}
 
 		virtual auto canLoad(const std::string& extension) -> bool = 0;
+		virtual auto deferredLoad() -> bool
+		{
+			return true;
+		}
 	};
 
 	class AssetManager

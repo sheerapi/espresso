@@ -208,13 +208,22 @@ namespace core
 
 		for (auto& loader : processors)
 		{
-			if (loader->canLoad(std::filesystem::path(entry.path).extension()))
+			if (!loader->canLoad(std::filesystem::path(entry.path).extension()))
+			{
+				continue;
+			}
+
+			if (entry.uncompressedSize >= 32768 || loader->deferredLoad())
 			{
 				loadedAssets[entry.path] = loader->getDefaultAsset();
 				::internals::JobScheduler::submit(
 					[=]() { loader->load(buffer, entry.uncompressedSize); });
-				return {loadedAssets[entry.path]};
 			}
+			else
+			{
+				loadedAssets[entry.path] = loader->load(buffer, entry.uncompressedSize);
+			}
+			return {loadedAssets[entry.path]};
 		}
 
 		return nullptr;
@@ -246,13 +255,23 @@ namespace core
 
 		for (auto& loader : processors)
 		{
-			if (loader->canLoad(std::filesystem::path(entry.path).extension()))
+			if (!loader->canLoad(std::filesystem::path(entry.path).extension()))
+			{
+				continue;
+			}
+
+			if (entry.uncompressedSize >= 32768 || loader->deferredLoad())
 			{
 				loadedAssets[entry.path] = loader->getDefaultAsset();
 				::internals::JobScheduler::submit(
 					[=]() { loader->load(buffer, entry.uncompressedSize); });
-				return {loadedAssets[entry.path]};
 			}
+			else
+			{
+				loadedAssets[entry.path] = loader->load(buffer, entry.uncompressedSize);
+			}
+
+			return {loadedAssets[entry.path]};
 		}
 
 		return nullptr;

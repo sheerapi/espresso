@@ -1,5 +1,6 @@
 #include "platform/JobScheduler.h"
 #include <thread>
+#include "core/Application.h"
 #include "core/log.h"
 
 namespace internals
@@ -64,6 +65,7 @@ namespace internals
 
 	void JobScheduler::workerFunction(bool isCore)
 	{
+		core::threadName = "worker";
 		while (true)
 		{
 			std::function<void()> task;

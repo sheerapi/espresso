@@ -39,4 +39,9 @@ namespace graphics::nop
 	{
 		glFlush();
 	}
+
+	void NopGraphicContext::swap()
+	{
+		SDL_GL_SwapWindow((SDL_Window*)window->getWindowHandle());
+	}
 }

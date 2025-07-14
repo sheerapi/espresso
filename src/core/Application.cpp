@@ -2,12 +2,14 @@
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_events.h"
+#include "components/core/LuaScriptEngine.h"
 #include "core/TickThread.h"
 #include "core/log.h"
 #include "graphics/RenderThread.h"
 #include "platform/AssetManager.h"
 #include "platform/EventHandler.h"
 #include "platform/ThreadManager.h"
+#include "platform/assets/LuaScript.h"
 #include "utils/PerformanceTimer.h"
 #include "platform/JobScheduler.h"
 #include <memory>
@@ -26,6 +28,9 @@ namespace core
 		}
 
 		main = this;
+
+		AssetManager::registerProcessor<platform::LuaScriptProcessor>();
+		LuaScriptEngine::init();
 
 		::internals::JobScheduler::init();
 		AssetManager::init();
@@ -57,6 +62,7 @@ namespace core
 		SDL_DestroyWindow((SDL_Window*)window->getWindowHandle());
 		SDL_Quit();
 		::internals::JobScheduler::shutdown();
+		LuaScriptEngine::shutdown();
 		log_warn("bye bye!");
 	}
 

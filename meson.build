@@ -24,6 +24,9 @@ sources = [
 	'src/core/Transform.cpp',
 	'src/platform/JobScheduler.cpp',
 	'src/components/graphics/Camera.cpp',
+	'src/platform/assets/LuaScript.cpp',
+	'src/components/core/LuaScriptEngine.cpp',
+	'src/components/core/LuaBehavior.cpp',
 
 	'src/graphics/GraphicDevice.cpp',
 	'src/graphics/RenderThread.cpp',
@@ -49,7 +52,7 @@ dependencies = [
 	dependency('vulkan-memory-allocator'),
 	dependency('shaderc'),
 	dependency('imgui_docking'),
-	subproject('sol2', default_options: {'use_luajit': true, 'lua_cpp': true}).get_variable('sol2_dep'),
+	subproject('sol2', default_options: {'use_luajit': true}).get_variable('sol2_dep'),
 ]
 
 espresso_lib = library(

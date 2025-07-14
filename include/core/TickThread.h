@@ -1,4 +1,5 @@
 #pragma once
+#include "components/core/LuaScriptEngine.h"
 #include "platform/Thread.h"
 
 namespace core
