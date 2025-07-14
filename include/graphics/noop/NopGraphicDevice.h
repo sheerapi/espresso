@@ -7,5 +7,7 @@ namespace graphics::nop
     {
     public:
         void init() override;
-    };
+		auto createPassDescriptor(const std::string& name, RenderPass* pass)
+			-> std::unique_ptr<RenderPassDescriptor> override;
+	};
 }

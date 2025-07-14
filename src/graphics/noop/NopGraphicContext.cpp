@@ -1,9 +1,28 @@
 #include "graphics/noop/NopGraphicContext.h"
+#include "core/log.h"
+#include "glad/gl.h"
 
 namespace graphics::nop
 {
 	void NopGraphicContext::init(platform::Window* window)
 	{
+		this->window = window;
+		_context = SDL_GL_CreateContext((SDL_Window*)window->getWindowHandle());
+
+		if (_context == nullptr)
+		{
+			log_error("failed to get opengl context: %s", SDL_GetError());
+			return;
+		}
+
+		gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
+
+		int major;
+		int minor;
+
+		glGetIntegerv(GL_MAJOR_VERSION, &major);
+		glGetIntegerv(GL_MINOR_VERSION, &minor);
+		log_trace("using opengl %d.%d", major, minor);
 	}
 
 	auto NopGraphicContext::getBackend() -> uint32_t
@@ -13,9 +32,11 @@ namespace graphics::nop
 
 	void NopGraphicContext::beginFrame()
 	{
+		SDL_GL_MakeCurrent((SDL_Window*)window->getWindowHandle(), _context);
 	}
 
 	void NopGraphicContext::endFrame()
 	{
+		glFlush();
 	}
 }

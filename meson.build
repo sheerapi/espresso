@@ -27,11 +27,13 @@ sources = [
 
 	'src/graphics/GraphicDevice.cpp',
 	'src/graphics/RenderThread.cpp',
+	'src/graphics/Renderer.cpp',
+	'src/graphics/RenderGraph.cpp',
 	'src/graphics/vulkan/VkGraphicDevice.cpp',
 	'src/graphics/vulkan/VkGraphicContext.cpp',
 
 	'src/graphics/noop/NopGraphicContext.cpp',
-	'src/graphics/noop/NopGraphicDevice.cpp'
+	'src/graphics/noop/NopGraphicDevice.cpp',
 ]
 
 if get_option('debug')
@@ -45,7 +47,9 @@ dependencies = [
 	dependency('libzstd'),
 	dependency('cglm'),
 	dependency('vulkan-memory-allocator'),
-	dependency('shaderc')
+	dependency('shaderc'),
+	dependency('imgui_docking'),
+	subproject('sol2', default_options: {'use_luajit': true, 'lua_cpp': true}).get_variable('sol2_dep'),
 ]
 
 espresso_lib = library(

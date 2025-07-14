@@ -10,5 +10,8 @@ namespace graphics::nop
         auto getBackend() -> uint32_t override;
         void beginFrame() override;
         void endFrame() override;
+
+    private:
+        SDL_GLContext _context;
     };
 }
