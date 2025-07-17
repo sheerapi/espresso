@@ -1,5 +1,4 @@
 #include "components/core/LuaBehavior.h"
-#include "components/core/LuaScriptEngine.h"
 #include "platform/AssetManager.h"
 #include "platform/assets/LuaScript.h"
 #include <memory>
@@ -36,7 +35,7 @@ namespace core
     {
         if (script->hasFunction(name))
         {
-            hotSpots[name] = script->env[name];
+            hotSpots[name] = script->table[name];
         }
     }
 }

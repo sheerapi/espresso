@@ -1,7 +1,5 @@
-function start()
-    print("hello")
-end
+local test = {
+    velocity = 4
+}
 
-function update()
-    print("from lua")
-end
+return test

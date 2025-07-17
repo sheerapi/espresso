@@ -8,6 +8,7 @@ namespace platform
     {
     public:
         sol::environment env;
+        sol::table table;
 
         auto has(const std::string& name) -> bool;
 		auto hasFunction(const std::string& name) -> bool;
