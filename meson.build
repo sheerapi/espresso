@@ -39,8 +39,17 @@ sources = [
 	'src/graphics/noop/NopGraphicDevice.cpp',
 ]
 
+editor_src = [
+
+]
+
 if get_option('debug')
 	add_project_arguments(['-DDEBUG'], language: 'cpp')
+endif
+
+if get_option('editor')
+	add_project_arguments(['-DEDITOR'], language: 'cpp')
+	src += editor_src
 endif
 
 dependencies = [
@@ -52,6 +61,7 @@ dependencies = [
 	dependency('vulkan-memory-allocator'),
 	dependency('shaderc'),
 	dependency('imgui_docking'),
+	dependency('magic_enum', default_options: {'test': false}),
 	subproject('sol2', default_options: {'use_luajit': true}).get_variable('sol2_dep'),
 ]
 

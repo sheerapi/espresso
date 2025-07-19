@@ -7,6 +7,8 @@ namespace platform
     class LuaScript : public core::Asset
     {
     public:
+        LuaScript();
+        
         sol::environment env;
         sol::table table;
 

@@ -46,8 +46,10 @@ namespace core
 		{
 			core::time.startMeasure();
 
-			SDL_PollEvent(&e);
-			::internals::handleEvent(e);
+			if (SDL_WaitEvent(&e) == 1)
+			{
+				::internals::handleEvent(e);
+			}
 
 			core::time.endMeasure();
 		}

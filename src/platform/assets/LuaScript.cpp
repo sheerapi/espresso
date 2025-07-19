@@ -3,6 +3,13 @@
 
 namespace platform
 {
+	LuaScript::LuaScript()
+	{
+		env = sol::environment(core::LuaScriptEngine::state, sol::create,
+							   core::LuaScriptEngine::state.globals());
+		table = sol::table(core::LuaScriptEngine::state);
+	}
+
 	auto LuaScript::has(const std::string& name) -> bool
 	{
 		return table[name].valid();

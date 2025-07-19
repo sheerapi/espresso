@@ -172,7 +172,7 @@ namespace core
 		if (it == assetIndex.end())
 		{
 			log_error("asset %s not found", path.c_str());
-			return nullptr;
+			return {};
 		}
 
 		const AssetEntry& entry = it->second;

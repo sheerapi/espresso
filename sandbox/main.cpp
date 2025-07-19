@@ -18,7 +18,6 @@ public:
 
 		scene->addEntity()->addComponent<Camera>();
 		scene->addEntity("Test")->addComponent<LuaBehavior>("scripts/test.lua");
-		scene->addEntity("Test2")->addComponent<LuaBehavior>("scripts/test2.lua");
 	}
 };
 
