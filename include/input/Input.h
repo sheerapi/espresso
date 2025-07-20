@@ -16,6 +16,10 @@ namespace core
 		static auto getButtonUp(MouseButton button) -> bool;
         static auto getMousePos() -> math::Vector2;
 
+		static void setClipboard(const std::string& string);
+		static auto getClipboard() -> std::string;
+		static void openUrl(const std::string& url);
+
 	private:
 		inline static std::bitset<es_maxScancodes> keys;
 		inline static std::bitset<es_maxScancodes> lastKeys;

@@ -30,10 +30,6 @@ namespace core
 
 		main = this;
 
-#ifdef EDITOR
-		editor = std::make_unique<editor::internals::EditorContext>();
-#endif
-
 		AssetManager::registerProcessor<platform::LuaScriptProcessor>();
 		LuaScriptEngine::init();
 
@@ -99,6 +95,11 @@ namespace core
 		}
 
 		window->create();
+
+#ifdef EDITOR
+		editor = std::make_unique<editor::internals::EditorContext>();
+#endif
+
 		platform::ThreadManager::run();
 
 		_init = true;
