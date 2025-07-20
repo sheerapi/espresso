@@ -12,9 +12,7 @@ namespace core::jobs
 	constexpr JobID InvalidJobID = 0;
 	constexpr FenceID InvalidFenceID = 0;
 	constexpr size_t MaxWorkerThreads = 64;
-	constexpr size_t MaxJobsPerFrame = 4096;
-	constexpr size_t FiberStackSize = (size_t)(64 * 1024); // 64kb stack per fiber
-	constexpr size_t MaxFibersPerThread = 16;
+	constexpr size_t MaxJobsPerFrame = 2048;
 
 	enum class JobPriority : uint8_t
 	{
@@ -28,7 +26,6 @@ namespace core::jobs
 	enum class JobState : uint8_t
 	{
 		Created,
-		Queued,
 		Running,
 		Waiting,
 		Completed,
