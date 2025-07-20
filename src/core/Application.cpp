@@ -5,13 +5,14 @@
 #include "components/core/LuaScriptEngine.h"
 #include "core/TickThread.h"
 #include "core/log.h"
+#include "editor/core/EditorContext.h"
 #include "graphics/RenderThread.h"
 #include "platform/AssetManager.h"
 #include "platform/EventHandler.h"
+#include "platform/JobScheduler.h"
 #include "platform/ThreadManager.h"
 #include "platform/assets/LuaScript.h"
 #include "utils/PerformanceTimer.h"
-#include "platform/JobScheduler.h"
 #include <memory>
 
 namespace core
@@ -28,6 +29,10 @@ namespace core
 		}
 
 		main = this;
+
+#ifdef EDITOR
+		editor = std::make_unique<editor::internals::EditorContext>();
+#endif
 
 		AssetManager::registerProcessor<platform::LuaScriptProcessor>();
 		LuaScriptEngine::init();

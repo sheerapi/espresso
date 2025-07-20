@@ -42,7 +42,7 @@ sources = [
 ]
 
 editor_src = [
-
+	'src/editor/core/EditorContext.cpp'
 ]
 
 if get_option('debug')
@@ -51,7 +51,7 @@ endif
 
 if get_option('editor')
 	add_project_arguments(['-DEDITOR'], language: 'cpp')
-	src += editor_src
+	sources += editor_src
 endif
 
 dependencies = [

@@ -1,4 +1,7 @@
 #pragma once
+#ifdef EDITOR
+#	include "editor/core/EditorContext.h"
+#endif
 #include "platform/Thread.h"
 #include "platform/Window.h"
 #include <memory>
@@ -35,6 +38,10 @@ namespace core
 	protected:
 		std::string appName = "Game";
 		std::unique_ptr<platform::Window> window;
+
+#ifdef EDITOR
+		std::unique_ptr<editor::internals::EditorContext> editor;
+#endif
 
 	private:
 		bool _init{false};

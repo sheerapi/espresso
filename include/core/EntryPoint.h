@@ -20,9 +20,9 @@ auto main(int argc, const char** argv) -> int
 		es_stopwatchNamed("user init");
 		app->init();
 	}
-	log_info("initialized %s!", app->getName().c_str());
-
+	
 	app->setup();
+	log_info("initialized %s!", app->getName().c_str());
 
 	auto result = app->run();
 
