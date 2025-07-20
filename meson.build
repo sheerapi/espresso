@@ -38,7 +38,8 @@ sources = [
 	'src/graphics/noop/NopGraphicContext.cpp',
 	'src/graphics/noop/NopGraphicDevice.cpp',
 
-	'src/core/jobs/FrameMemoryPool.cpp'
+	'src/core/jobs/FrameMemoryPool.cpp',
+	'src/core/jobs/JobManager.cpp'
 ]
 
 editor_src = [

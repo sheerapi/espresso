@@ -4,6 +4,7 @@
 #include "SDL2/SDL_events.h"
 #include "components/core/LuaScriptEngine.h"
 #include "core/TickThread.h"
+#include "core/jobs/JobManager.h"
 #include "core/log.h"
 #include "editor/core/EditorContext.h"
 #include "graphics/RenderThread.h"
@@ -29,6 +30,7 @@ namespace core
 		}
 
 		main = this;
+		jobs::JobManager::initialize();
 
 		AssetManager::registerProcessor<platform::LuaScriptProcessor>();
 		LuaScriptEngine::init();
