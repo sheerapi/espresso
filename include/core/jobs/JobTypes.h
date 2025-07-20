@@ -13,6 +13,8 @@ namespace core::jobs
 	constexpr FenceID InvalidFenceID = 0;
 	constexpr size_t MaxWorkerThreads = 64;
 	constexpr size_t MaxJobsPerFrame = 2048;
+	constexpr size_t FrameMemorySize = (size_t)(4 * 1024 * 1024);
+	constexpr size_t MinFrameMemorySize = (size_t)(512 * 1024);
 
 	enum class JobPriority : uint8_t
 	{
