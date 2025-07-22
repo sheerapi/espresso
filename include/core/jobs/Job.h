@@ -9,15 +9,31 @@ namespace core::jobs
 	public:
 		using WorkFunction = void (*)(Job*, void*);
 
-		Job(WorkFunction work, void* data, JobPriority priority = JobPriority::Normal)
+		Job(WorkFunction work, void* data = nullptr, JobPriority priority = JobPriority::Normal)
 			: priority(priority), id(nextJobID.fetch_add(1)), work(work), data(data)
 		{
 		}
 
 		void execute();
-		auto getState() -> JobState
+
+		[[nodiscard]] auto getState() const -> JobState
 		{
 			return state;
+		}
+
+		[[nodiscard]] auto getPriority() const -> JobPriority
+		{
+			return priority;
+		}
+
+		[[nodiscard]] auto getId() const -> JobID
+		{
+			return id;
+		}
+
+		void setData(void* data)
+		{
+			this->data = data;
 		}
 
 	protected:
@@ -28,7 +44,6 @@ namespace core::jobs
         void* data;
 
 		std::atomic<uint32_t> refCount{0}; // dependency number
-        Job* parent;
 
 	private:
 		inline static std::atomic<unsigned long> nextJobID{1};

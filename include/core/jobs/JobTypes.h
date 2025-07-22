@@ -16,7 +16,7 @@ namespace core::jobs
 	constexpr size_t FrameMemorySize = (size_t)(4 * 1024 * 1024);
 	constexpr size_t MinFrameMemorySize = (size_t)(512 * 1024);
 
-	enum class JobPriority : uint8_t
+	enum class JobPriority : char
 	{
 		Critical = 0,  // frame-critical
 		High = 1,	   // well, important
@@ -25,7 +25,7 @@ namespace core::jobs
 		Background = 4 // asset loading, profiling, whatever
 	};
 
-	enum class JobState : uint8_t
+	enum class JobState : char
 	{
 		Created,
 		Running,

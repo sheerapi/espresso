@@ -4,6 +4,7 @@
 #include "core/jobs/WorkerThread.h"
 #include <condition_variable>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace core::jobs
@@ -25,9 +26,12 @@ namespace core::jobs
 		static void shutdown();
 
 		static auto submitJob(const std::shared_ptr<Job>& job) -> JobID;
-		
+        static auto getJob(JobID job) -> std::shared_ptr<Job>;
+		static void addDependency(const std::shared_ptr<Job>& dependent, const std::shared_ptr<Job>& dependency);
+
 	protected:
 		static auto dequeueJob() -> std::shared_ptr<Job>;
+		static void onComplete(JobID id);
 
 		inline static moodycamel::ConcurrentQueue<std::shared_ptr<Job>> jobQueues[5];
 		inline static std::vector<std::unique_ptr<WorkerThread>> workerThreads;
@@ -37,7 +41,10 @@ namespace core::jobs
 		inline static std::condition_variable condition;
 		inline static std::atomic<JobID> activeJobCount;
 		inline static thread_local WorkerThread* currentWorkerThread;
+		inline static std::unordered_map<JobID, std::vector<std::shared_ptr<Job>>>
+			dependents;
 
 		friend class WorkerThread;
+        friend class Job;
 	};
 }

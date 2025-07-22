@@ -22,6 +22,24 @@ namespace core::jobs
 		log_info("initialized job manager with %d worker threads", numThreads);
 	}
 
+	auto JobManager::getJob(JobID jobId) -> std::shared_ptr<Job>
+	{
+		for (auto& queue : jobQueues)
+		{
+			std::shared_ptr<Job> job;
+			while (queue.try_dequeue(job))
+			{
+				queue.enqueue(job);
+				if (job->id == jobId)
+				{
+					return job;
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
 	auto JobManager::submitJob(const std::shared_ptr<Job>& job) -> JobID
 	{
         if (shutdownRequested)
@@ -82,5 +100,35 @@ namespace core::jobs
 		}
 
 		workerThreads.clear();
+	}
+
+	void JobManager::addDependency(const std::shared_ptr<Job>& dependent,
+								   const std::shared_ptr<Job>& dependency)
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+		dependent->refCount.fetch_add(1, std::memory_order_relaxed);
+		dependents[dependency->id].push_back(std::shared_ptr<Job>(dependent));
+	}
+
+	void JobManager::onComplete(JobID id)
+	{
+		std::vector<std::shared_ptr<Job>> dependents;
+
+		{
+			std::lock_guard lock(mutex);
+
+			auto it = JobManager::dependents.find(id);
+			if (it != JobManager::dependents.end())
+			{
+				dependents = std::move(it->second);
+				JobManager::dependents.erase(it);
+			}
+		}
+
+		for (auto& dependent : dependents)
+		{
+			dependent->refCount.fetch_sub(1, std::memory_order_acq_rel);
+			submitJob({dependent});
+		}
 	}
 }

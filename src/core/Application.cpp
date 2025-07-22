@@ -46,6 +46,7 @@ namespace core
 	auto Application::run() -> bool
 	{
 		SDL_Event e;
+
 		while (window->isRunning())
 		{
 			core::time.startMeasure();
@@ -54,13 +55,6 @@ namespace core
 			{
 				::internals::handleEvent(e);
 			}
-			
-			jobs::JobManager::submitJob(std::make_shared<jobs::Job>(
-				[](auto job, auto* data)
-				{
-					
-				},
-				&time));
 
 			core::time.endMeasure();
 		}
