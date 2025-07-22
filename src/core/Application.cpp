@@ -14,6 +14,7 @@
 #include "platform/ThreadManager.h"
 #include "platform/assets/LuaScript.h"
 #include "utils/PerformanceTimer.h"
+#include <chrono>
 #include <memory>
 
 namespace core
@@ -49,10 +50,17 @@ namespace core
 		{
 			core::time.startMeasure();
 
-			if (SDL_WaitEvent(&e) == 1)
+			if (SDL_PollEvent(&e) == 1)
 			{
 				::internals::handleEvent(e);
 			}
+			
+			jobs::JobManager::submitJob(std::make_shared<jobs::Job>(
+				[](auto job, auto* data)
+				{
+					
+				},
+				&time));
 
 			core::time.endMeasure();
 		}
@@ -67,6 +75,7 @@ namespace core
 		SDL_DestroyWindow((SDL_Window*)window->getWindowHandle());
 		SDL_Quit();
 		::internals::JobScheduler::shutdown();
+		jobs::JobManager::shutdown();
 		LuaScriptEngine::shutdown();
 		log_warn("bye bye!");
 	}

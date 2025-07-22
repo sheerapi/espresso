@@ -39,7 +39,9 @@ sources = [
 	'src/graphics/noop/NopGraphicDevice.cpp',
 
 	'src/core/jobs/FrameMemoryPool.cpp',
-	'src/core/jobs/JobManager.cpp'
+	'src/core/jobs/JobManager.cpp',
+	'src/core/jobs/WorkerThread.cpp',
+	'src/core/jobs/Job.cpp'
 ]
 
 editor_src = [
@@ -64,6 +66,7 @@ dependencies = [
 	dependency('vulkan-memory-allocator'),
 	dependency('shaderc'),
 	dependency('imgui_docking'),
+	dependency('concurrentqueue'),
 	dependency('magic_enum', default_options: {'test': false}),
 	subproject('sol2', default_options: {'use_luajit': true}).get_variable('sol2_dep'),
 ]

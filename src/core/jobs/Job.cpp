@@ -1,0 +1,30 @@
+#include "core/jobs/Job.h"
+#include "core/log.h"
+
+namespace core::jobs
+{
+    void Job::execute()
+    {
+		auto expectedState = JobState::Waiting;
+		if (!state.compare_exchange_strong(expectedState, JobState::Running))
+		{
+			return; // job already running or completed
+		}
+
+		try
+		{
+			if (work != nullptr)
+			{
+				work(this, data);
+			}
+
+			state.store(JobState::Completed, std::memory_order_release);
+		}
+		catch (...)
+		{
+			state.store(JobState::Failed, std::memory_order_release);
+            log_error("failed to execute job %d", id);
+			throw;
+		}
+	}
+}
