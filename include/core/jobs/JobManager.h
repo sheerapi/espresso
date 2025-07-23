@@ -29,6 +29,9 @@ namespace core::jobs
         static auto getJob(JobID job) -> std::shared_ptr<Job>;
 		static void addDependency(const std::shared_ptr<Job>& dependent, const std::shared_ptr<Job>& dependency);
 
+        static void beginFrame();
+        static void endFrame();
+
 	protected:
 		static auto dequeueJob() -> std::shared_ptr<Job>;
 		static void onComplete(JobID id);

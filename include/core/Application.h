@@ -1,4 +1,5 @@
 #pragma once
+#include "core/jobs/FrameMemoryPool.h"
 #ifdef EDITOR
 #	include "editor/core/EditorContext.h"
 #endif
@@ -36,6 +37,7 @@ namespace core
 		[[nodiscard]] auto hasInit() const -> bool;
 
 	protected:
+		std::unique_ptr<jobs::FrameMemoryPool> frameMemoryPool;
 		std::string appName = "Game";
 		std::unique_ptr<platform::Window> window;
 

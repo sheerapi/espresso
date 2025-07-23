@@ -1,5 +1,4 @@
 #include "core/Application.h"
-
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_events.h"
 #include "components/core/LuaScriptEngine.h"
@@ -14,7 +13,6 @@
 #include "platform/ThreadManager.h"
 #include "platform/assets/LuaScript.h"
 #include "utils/PerformanceTimer.h"
-#include <chrono>
 #include <memory>
 
 namespace core
@@ -31,6 +29,8 @@ namespace core
 		}
 
 		main = this;
+
+		frameMemoryPool = std::make_unique<jobs::FrameMemoryPool>();
 		jobs::JobManager::initialize();
 
 		AssetManager::registerProcessor<platform::LuaScriptProcessor>();
@@ -50,12 +50,15 @@ namespace core
 		while (window->isRunning())
 		{
 			core::time.startMeasure();
+			frameMemoryPool->reset();
+			jobs::JobManager::beginFrame();
 
 			if (SDL_PollEvent(&e) == 1)
 			{
 				::internals::handleEvent(e);
 			}
 
+			jobs::JobManager::endFrame();
 			core::time.endMeasure();
 		}
 

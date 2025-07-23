@@ -1,5 +1,6 @@
 #include "core/jobs/Job.h"
 #include "core/jobs/JobManager.h"
+#include "core/jobs/JobTypes.h"
 #include "core/log.h"
 
 namespace core::jobs
@@ -28,5 +29,60 @@ namespace core::jobs
 		}
 
         JobManager::onComplete(id);
+	}
+
+    void Job::waitForDependencies()
+    {
+        while (refCount != 0)
+        {
+            if (auto* worker = JobManager::currentWorkerThread)
+            {
+                worker->yield();
+            }
+            else
+            {
+                std::this_thread::yield();
+            }
+        }
+    }
+
+	void Job::wait()
+    {
+        // failure is still completion
+        while (state != JobState::Completed || state != JobState::Failed)
+        {
+			if (auto* worker = JobManager::currentWorkerThread)
+			{
+				worker->yield();
+			}
+			else
+			{
+				std::this_thread::yield();
+			}
+		}
+    }
+
+	auto Job::wait(std::chrono::milliseconds timeout) -> bool
+    {
+		auto startTime = std::chrono::steady_clock::now();
+
+		while (state != JobState::Completed || state != JobState::Failed)
+		{
+			if (std::chrono::steady_clock::now() - startTime > timeout)
+			{
+				return false;
+			}
+
+			if (auto* worker = JobManager::currentWorkerThread)
+			{
+				worker->yield();
+			}
+			else
+			{
+				std::this_thread::yield();
+			}
+		}
+
+        return true;
 	}
 }

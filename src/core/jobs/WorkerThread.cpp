@@ -87,4 +87,9 @@ namespace core::jobs
 
 		JobManager::currentWorkerThread = nullptr;
 	}
+
+	void WorkerThread::yield()
+	{
+		executeNextJob();
+	}
 }

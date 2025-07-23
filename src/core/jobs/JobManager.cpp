@@ -77,6 +77,8 @@ namespace core::jobs
             // job is ready to be executed
             if (job->refCount == 0)
             {
+				stats.currentQueueSize--;
+				stats.totalJobsExecuted++;
 				activeJobCount.fetch_sub(1);
                 condition.notify_all();
                 return job;
@@ -87,6 +89,16 @@ namespace core::jobs
 		}
 
         return nullptr;
+	}
+
+	void JobManager::beginFrame()
+	{
+		
+	}
+
+	void JobManager::endFrame()
+	{
+
 	}
 
 	void JobManager::shutdown()

@@ -25,6 +25,8 @@ namespace core::jobs
 		auto executeNextJob() -> bool;
 		void executeJob(const std::shared_ptr<Job>& job);
 
+		void yield();
+
 	protected:
         void workerThreadMain();
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "core/jobs/JobTypes.h"
 #include <atomic>
+#include <chrono>
 
 namespace core::jobs
 {
@@ -15,6 +16,10 @@ namespace core::jobs
 		}
 
 		void execute();
+		void waitForDependencies();
+
+		void wait();
+		auto wait(std::chrono::milliseconds timeout) -> bool;
 
 		[[nodiscard]] auto getState() const -> JobState
 		{
