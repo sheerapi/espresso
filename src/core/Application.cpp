@@ -5,7 +5,6 @@
 #include "core/TickThread.h"
 #include "core/jobs/JobManager.h"
 #include "core/log.h"
-#include "editor/core/EditorContext.h"
 #include "graphics/RenderThread.h"
 #include "platform/AssetManager.h"
 #include "platform/EventHandler.h"
@@ -69,22 +68,19 @@ namespace core
 	{
 		shutdown();
 		platform::ThreadManager::shutdown();
-		window.reset();
-		SDL_Quit();
 		::internals::JobScheduler::shutdown();
 		jobs::JobManager::shutdown();
 		LuaScriptEngine::shutdown();
+		window.reset();
+		SDL_Quit();
 		log_warn("bye bye!");
-	}
-
-	auto Application::getName() -> std::string
-	{
-		return appName;
 	}
 
 	void Application::setup()
 	{
 		es_stopwatchNamed("presentation setup");
+
+		appInfo = getAppInfo();
 
 		{
 			es_stopwatchNamed("platform backend init");
@@ -99,7 +95,7 @@ namespace core
 
 		if (window == nullptr)
 		{
-			window = std::make_unique<platform::Window>(appName);
+			window = std::make_unique<platform::Window>(getName());
 		}
 
 		window->create();

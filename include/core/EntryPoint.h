@@ -16,6 +16,8 @@ auto main(int argc, const char** argv) -> int
 
 	auto* app = createApp(argc, argv);
 
+	app->getEnvironmentInfo().initialize(argc, argv);
+
 	{
 		es_stopwatchNamed("user init");
 		app->init();

@@ -4,7 +4,7 @@
 #include "core/Entity.h"
 #include "core/EntryPoint.h"
 #include "core/Scene.h"
-#include "platform/AssetManager.h"
+#include "platform/EnvironmentInfo.h"
 
 using namespace core;
 
@@ -13,11 +13,18 @@ class SandboxApp : public Application
 public:
 	void init() override
 	{
-		appName = "sandbox";
 		auto* scene = Scene::currentScene;
 
 		scene->addEntity()->addComponent<Camera>();
 		scene->addEntity("Test")->addComponent<LuaBehavior>("scripts/test.lua");
+	}
+	
+	auto getAppInfo() -> platform::ApplicationInfo override
+	{
+		return {
+			"sandbox",
+			"sandbox"
+		};
 	}
 };
 

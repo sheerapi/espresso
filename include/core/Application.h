@@ -1,8 +1,6 @@
 #pragma once
 #include "core/jobs/FrameMemoryPool.h"
-#ifdef EDITOR
-#	include "editor/core/EditorContext.h"
-#endif
+#include "platform/EnvironmentInfo.h"
 #include "platform/Thread.h"
 #include "platform/Window.h"
 #include <memory>
@@ -28,26 +26,40 @@ namespace core
 
 		// the main difference between init and start is that
 		// init runs before window creation and starts runs after everything is setup
-		
+
 		virtual void init() {};
 		virtual void start() {};
 		virtual void update() {};
 		virtual void shutdown() {};
 
-		auto getName() -> std::string;
+		virtual auto getAppInfo() -> platform::ApplicationInfo
+		{
+			return {};
+		}
+
+		auto getName() const -> std::string
+		{
+			return appInfo.name;
+		}
+
+		auto getId() const -> std::string
+		{
+			return appInfo.appId;
+		}
 
 		auto getWindow() -> platform::Window*;
+		auto getEnvironmentInfo() -> platform::EnvironmentInfo&
+		{
+			return envInfo;
+		}
 
 		[[nodiscard]] auto hasInit() const -> bool;
 
 	protected:
 		std::unique_ptr<jobs::FrameMemoryPool> frameMemoryPool;
-		std::string appName = "Game";
 		std::unique_ptr<platform::Window> window;
-
-#ifdef EDITOR
-		std::unique_ptr<editor::internals::EditorContext> editor;
-#endif
+		platform::EnvironmentInfo envInfo;
+		platform::ApplicationInfo appInfo;
 
 	private:
 		bool _init{false};

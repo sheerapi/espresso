@@ -1,3 +1,4 @@
+#pragma once
 #include "utils/BinaryWriter.h"
 #include <istream>
 #include <limits>

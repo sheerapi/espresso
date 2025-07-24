@@ -47,6 +47,7 @@ namespace platform
 	Window::~Window()
 	{
 		close();
+		SDL_DestroyWindow(_window);
 	}
 
 	auto Window::isRunning() const -> bool
@@ -90,7 +91,6 @@ namespace platform
 	void Window::close()
 	{
 		_running = false;
-		SDL_DestroyWindow(_window);
 	}
 
 	void Window::handleEvent(void* event)

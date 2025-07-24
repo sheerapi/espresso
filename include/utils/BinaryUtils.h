@@ -1,3 +1,5 @@
+#pragma once
+#include "platform/EnvironmentInfo.h"
 #include "BinaryWriter.h"
 #include "BinaryReader.h"
 
@@ -14,29 +16,13 @@ namespace utils
 		return magic == expectedMagic;
 	}
 
-	struct Version
+	void writeVersion(BinaryWriter& writer, const platform::Version& version)
 	{
-		uint16_t major;
-		uint16_t minor;
-
-		auto operator==(const Version& other) const -> bool
-		{
-			return major == other.major && minor == other.minor;
-		}
-
-		auto operator>=(const Version& other) const -> bool
-		{
-			return major > other.major || (major == other.major && minor >= other.minor);
-		}
-	};
-
-	void writeVersion(BinaryWriter& writer, const Version& version)
-	{
-		writer.write(version.major).write(version.minor);
+		writer.write(version.major).write(version.minor).write(version.patch);
 	}
 
-	auto readVersion(BinaryReader& reader) -> Version
+	auto readVersion(BinaryReader& reader) -> platform::Version
 	{
-		return {reader.read<uint16_t>(), reader.read<uint16_t>()};
+		return {reader.read<uint16_t>(), reader.read<uint16_t>(), reader.read<uint16_t>()};
 	}
 }

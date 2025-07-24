@@ -41,7 +41,9 @@ sources = [
 	'src/core/jobs/FrameMemoryPool.cpp',
 	'src/core/jobs/JobManager.cpp',
 	'src/core/jobs/WorkerThread.cpp',
-	'src/core/jobs/Job.cpp'
+	'src/core/jobs/Job.cpp',
+
+	'src/platform/EnvironmentInfo.cpp'
 ]
 
 editor_src = [
