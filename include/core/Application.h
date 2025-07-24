@@ -26,7 +26,11 @@ namespace core
 
 		auto run() -> bool;
 
+		// the main difference between init and start is that
+		// init runs before window creation and starts runs after everything is setup
+		
 		virtual void init() {};
+		virtual void start() {};
 		virtual void update() {};
 		virtual void shutdown() {};
 

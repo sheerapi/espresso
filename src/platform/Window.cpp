@@ -90,6 +90,7 @@ namespace platform
 	void Window::close()
 	{
 		_running = false;
+		SDL_DestroyWindow(_window);
 	}
 
 	void Window::handleEvent(void* event)

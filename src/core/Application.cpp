@@ -69,7 +69,7 @@ namespace core
 	{
 		shutdown();
 		platform::ThreadManager::shutdown();
-		SDL_DestroyWindow((SDL_Window*)window->getWindowHandle());
+		window.reset();
 		SDL_Quit();
 		::internals::JobScheduler::shutdown();
 		jobs::JobManager::shutdown();
@@ -103,10 +103,6 @@ namespace core
 		}
 
 		window->create();
-
-#ifdef EDITOR
-		editor = std::make_unique<editor::internals::EditorContext>();
-#endif
 
 		platform::ThreadManager::run();
 

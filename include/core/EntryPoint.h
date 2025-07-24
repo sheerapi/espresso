@@ -22,6 +22,7 @@ auto main(int argc, const char** argv) -> int
 	}
 	
 	app->setup();
+	app->start();
 	log_info("initialized %s!", app->getName().c_str());
 
 	auto result = app->run();
