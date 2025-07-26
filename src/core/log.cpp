@@ -21,10 +21,8 @@
  */
 
 #include "core/log.h"
-#include "core/Application.h"
 #include <filesystem>
 #include <mutex>
-#include <unordered_map>
 
 #define MAX_CALLBACKS 32
 #define LOG_USE_COLOR 1
@@ -51,26 +49,19 @@ static const char* level_strings[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR",
 #ifdef LOG_USE_COLOR
 static const char* level_colors[] = {"\x1b[94m", "\x1b[36m", "\x1b[32m",
 									 "\x1b[33m", "\x1b[31m", "\x1b[35m"};
-
-static const char* thread_colors[] = {"\x1b[34m", "\x1b[35m", "\x1b[92m", "\x1b[91m",
-									  "\x1b[95m", "\x1b[96m", "\x1b[93m", "\x1b[90m"};
-int threadColorIndex;
-std::unordered_map<std::string, std::string> threadColormap;
 #endif
 
 static void stdout_callback(log_Event* ev)
 {
-	const auto* thread_name = core::threadName.c_str();
-	const auto* thread_color = threadColormap[core::threadName].c_str();
 
 	char buf[16];
 	buf[strftime(buf, sizeof(buf), "%H:%M:%S", ev->time)] = '\0';
 #ifdef LOG_USE_COLOR
-	fprintf((FILE*)ev->udata, "%s %s[%6s]\x1b[0m %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ",
-			buf, thread_color, thread_name, level_colors[ev->level],
+	fprintf((FILE*)ev->udata, "%s %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ",
+			buf, level_colors[ev->level],
 			level_strings[ev->level], ev->file, ev->line);
 #else
-	fprintf(ev->udata, "%s [%-6s] %-5s %s:%d: ", buf, thread_name, level_strings[ev->level],
+	fprintf(ev->udata, "%s %-5s %s:%d: ", buf, level_strings[ev->level],
 			ev->file, ev->line);
 #endif
 	vfprintf((FILE*)ev->udata, ev->fmt, ev->ap);
@@ -80,11 +71,9 @@ static void stdout_callback(log_Event* ev)
 
 static void file_callback(log_Event* ev)
 {
-	const auto* thread_name = core::threadName.c_str();
-
-	char buf[64];
-	buf[strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", ev->time)] = '\0';
-	fprintf((FILE*)ev->udata, "%s [%-6s] %-5s %s:%d: ", buf, thread_name,
+	char buf[16];
+	buf[strftime(buf, sizeof(buf), "%H:%M:%S", ev->time)] = '\0';
+	fprintf((FILE*)ev->udata, "%s %-5s %s:%d: ", buf,
 			level_strings[ev->level], ev->file, ev->line);
 	vfprintf((FILE*)ev->udata, ev->fmt, ev->ap);
 	fprintf((FILE*)ev->udata, "\n");
@@ -141,6 +130,17 @@ int log_add_callback(log_LogFn fn, void* udata, int level)
 	return -1;
 }
 
+void log_remove_callback(int index)
+{
+	for (int i = 0; i < MAX_CALLBACKS; i++)
+	{
+		if (i == index)
+		{
+			L.callbacks[i].fn = nullptr;
+		}
+	}
+}
+
 int log_add_fp(FILE* fp, int level)
 {
 	return log_add_callback(file_callback, fp, level);
@@ -168,17 +168,6 @@ void log_log(int level, const char* file, int line, const char* fmt, ...)
 	};
 
 	std::lock_guard<std::mutex> lock(L.mutex);
-
-	if (threadColormap[core::threadName] == "")
-	{
-		threadColormap[core::threadName] = std::string(thread_colors[threadColorIndex]);
-		threadColorIndex++;
-
-		if (threadColorIndex >= 7)
-		{
-			threadColorIndex = 0;
-		}
-	}
 
 	if (!L.quiet && level >= L.level)
 	{

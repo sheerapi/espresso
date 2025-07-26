@@ -8,7 +8,6 @@ namespace core
 
 	void TickThread::init()
 	{
-		core::threadName = "script";
         Scene::currentScene->start();
 	}
 

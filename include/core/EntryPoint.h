@@ -7,8 +7,8 @@ extern auto createApp(int argc, const char** argv) -> core::Application*;
 
 auto main(int argc, const char** argv) -> int
 {
-	core::threadName = "main";
-	
+	log_add_fp(fopen("tmp_log.txt", "w"), LOG_TRACE);
+					 
 	if (argc >= 2 && (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--verbose") == 0))
 	{
 		core::verbose = true;
@@ -16,13 +16,13 @@ auto main(int argc, const char** argv) -> int
 
 	auto* app = createApp(argc, argv);
 
-	app->getEnvironmentInfo().initialize(argc, argv);
+	app->getEnvironmentInfo()->initialize(argc, argv);
 
 	{
 		es_stopwatchNamed("user init");
 		app->init();
 	}
-	
+
 	app->setup();
 	app->start();
 	log_info("initialized %s!", app->getName().c_str());

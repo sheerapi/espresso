@@ -65,7 +65,6 @@ namespace internals
 
 	void JobScheduler::workerFunction(bool isCore)
 	{
-		core::threadName = "worker";
 		while (true)
 		{
 			std::function<void()> task;

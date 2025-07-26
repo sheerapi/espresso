@@ -9,7 +9,6 @@
 namespace core
 {
 	inline bool verbose{false};
-	inline thread_local std::string threadName{"unknown"};
 	inline thread_local platform::ThreadTime time;
 
 	class Application
@@ -48,18 +47,25 @@ namespace core
 		}
 
 		auto getWindow() -> platform::Window*;
-		auto getEnvironmentInfo() -> platform::EnvironmentInfo&
+		auto getEnvironmentInfo() -> platform::EnvironmentInfo*
 		{
-			return envInfo;
+			return envInfo.get();
 		}
 
 		[[nodiscard]] auto hasInit() const -> bool;
 
+		void generateCrashReport(const std::string& signalType = "signal", int code = 0);
+
 	protected:
 		std::unique_ptr<jobs::FrameMemoryPool> frameMemoryPool;
 		std::unique_ptr<platform::Window> window;
-		platform::EnvironmentInfo envInfo;
 		platform::ApplicationInfo appInfo;
+
+		std::unique_ptr<platform::EnvironmentInfo> envInfo;
+
+		// this is way too heavy for it to be plainly on the App definition
+		// it irks me to see that its around ~700 bytes, and i mean, it still is
+		// but at least the memory is stored somewhere else, not here
 
 	private:
 		bool _init{false};

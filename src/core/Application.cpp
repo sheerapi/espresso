@@ -12,6 +12,9 @@
 #include "platform/ThreadManager.h"
 #include "platform/assets/LuaScript.h"
 #include "utils/PerformanceTimer.h"
+#include <ctime>
+#include <filesystem>
+#include <fstream>
 #include <memory>
 
 namespace core
@@ -29,6 +32,7 @@ namespace core
 
 		main = this;
 
+		envInfo = std::make_unique<platform::EnvironmentInfo>();
 		frameMemoryPool = std::make_unique<jobs::FrameMemoryPool>();
 		jobs::JobManager::initialize();
 
@@ -113,5 +117,16 @@ namespace core
 	auto Application::hasInit() const -> bool
 	{
 		return _init;
+	}
+
+	void Application::generateCrashReport(const std::string& signalType, int code)
+	{
+		auto timestamp = std::time(nullptr);
+		auto* date = localtime(&timestamp);
+
+		char name[24];
+		std::strftime(name, sizeof(name), "%d-%m-%y-%H.%M.txt", date);
+
+		std::ofstream crash(std::filesystem::path(envInfo->paths.logPath) / name);
 	}
 }

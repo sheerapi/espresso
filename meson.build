@@ -71,6 +71,7 @@ dependencies = [
 	dependency('concurrentqueue'),
 	dependency('magic_enum', default_options: {'test': false}),
 	subproject('sol2', default_options: {'use_luajit': true}).get_variable('sol2_dep'),
+	dependency('backward-cpp')
 ]
 
 espresso_lib = library(

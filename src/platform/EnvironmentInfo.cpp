@@ -1,10 +1,12 @@
 #pragma once
 #include "platform/EnvironmentInfo.h"
 #include "core/Application.h"
+#include "core/log.h"
 #include "utils/PerformanceTimer.h"
 #include <cstddef>
 #include <cstring>
 #include <filesystem>
+#include <iostream>
 #include <thread>
 
 #if defined(_WIN32)
@@ -12,10 +14,12 @@
 #elif defined(__APPLE__)
 #	include <sys/utsname.h>
 #	include <mach-o/dyld.h>
+#	include <signal.h>
 #elif defined(__linux)
 #	include <fstream>
 #	include <sys/sysinfo.h>
 #	include <unistd.h>
+#	include <signal.h>
 #endif
 
 namespace platform
@@ -31,9 +35,25 @@ namespace platform
 	auto getExecutablePath() -> std::string;
 	auto getDirectory(const std::string& path) -> std::string;
 	auto getTempDirectory() -> std::string;
-	auto getUserDataPath(const std::string& org, const std::string& appName) -> std::string;
+	auto getUserDataPath(const std::string& org, const std::string& appName)
+		-> std::string;
 	auto getCachePath(const std::string& org, const std::string& appName) -> std::string;
 	auto getLogPath(const std::string& org, const std::string& appName) -> std::string;
+
+#ifdef __unix
+	void signalHandler(int signal)
+	{
+		core::Application::main->generateCrashReport("signal", signal);
+		exit(EXIT_FAILURE);
+	}
+#elif defined(_WIN32)
+	LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* exception)
+	{
+		core::Application::main->generateCrashReport(
+			"exception", exception->ExceptionRecord->ExceptionCode);
+		return EXCEPTION_EXECUTE_HANDLER;
+	}
+#endif
 
 	void EnvironmentInfo::initialize(int argc, const char** argv)
 	{
@@ -58,14 +78,54 @@ namespace platform
 		paths.workingDirectory = std::filesystem::current_path();
 		paths.tempPath = getTempDirectory();
 
-        auto info = core::Application::main->getAppInfo();
-        paths.userDataPath = getUserDataPath(info.organization, info.appId);
-        paths.logPath = getLogPath(info.organization, info.appId);
-        paths.cachePath = getCachePath(info.organization, info.appId);
+		auto info = core::Application::main->getAppInfo();
+		paths.userDataPath = getUserDataPath(info.organization, info.appId);
+		paths.logPath = getLogPath(info.organization, info.appId);
+		paths.cachePath = getCachePath(info.organization, info.appId);
 
-        std::filesystem::create_directories(paths.userDataPath);
-        std::filesystem::create_directories(paths.logPath);
+		std::filesystem::create_directories(paths.userDataPath);
+		std::filesystem::create_directories(paths.logPath);
 		std::filesystem::create_directories(paths.cachePath);
+
+#ifdef __linux
+		signal(SIGSEGV, signalHandler);
+		signal(SIGABRT, signalHandler);
+		signal(SIGFPE, signalHandler);
+		signal(SIGILL, signalHandler);
+#elif defined(_WIN32)
+		SetUnhandledExceptionFilter(ExceptionHandler);
+#endif
+
+		std::set_terminate(
+			[]() { core::Application::main->generateCrashReport("exception", 0); });
+
+		if (std::filesystem::exists(std::filesystem::path(paths.logPath) /
+									"log_prev.txt"))
+		{
+			std::filesystem::remove(std::filesystem::path(paths.logPath) /
+									"log_prev.txt");
+		}
+
+		if (std::filesystem::exists(std::filesystem::path(paths.logPath) / "log.txt"))
+		{
+			std::filesystem::rename(std::filesystem::path(paths.logPath) / "log.txt",
+									std::filesystem::path(paths.logPath) /
+										"log_prev.txt");
+		}
+
+		log_add_fp(fopen((std::filesystem::path(paths.logPath) / "log.txt").c_str(), "w"),
+				   LOG_TRACE);
+
+		std::ifstream tmpLog("tmp_log.txt");
+
+		std::ofstream log(std::filesystem::path(paths.logPath) / "log.txt",
+						  std::ios_base::app);
+		log << tmpLog.rdbuf();
+		log.close();
+
+		std::filesystem::remove("tmp_log.txt");
+
+		log_remove_callback(0);
 	}
 
 	auto getPlatform() -> std::string
@@ -339,7 +399,8 @@ namespace platform
 		return val ? std::string(val) : fallback;
 	}
 
-	auto getUserDataPath(const std::string& org, const std::string& appName) -> std::string
+	auto getUserDataPath(const std::string& org, const std::string& appName)
+		-> std::string
 	{
 #if defined(_WIN32)
 		return getEnvOrFallback("APPDATA", ".") + "\\" + appName;
@@ -364,7 +425,7 @@ namespace platform
 	auto getLogPath(const std::string& org, const std::string& appName) -> std::string
 	{
 #if DEBUG
-        return "logs";
+		return getDirectory(getExecutablePath()) + "/logs";
 #else
 		return getUserDataPath(org, appName) + "/logs";
 #endif

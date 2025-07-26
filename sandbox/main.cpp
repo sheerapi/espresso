@@ -17,6 +17,8 @@ public:
 
 		scene->addEntity()->addComponent<Camera>();
 		scene->addEntity("Test")->addComponent<LuaBehavior>("scripts/test.lua");
+
+		throw;
 	}
 	
 	auto getAppInfo() -> platform::ApplicationInfo override

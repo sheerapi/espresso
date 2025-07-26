@@ -74,7 +74,6 @@ namespace core::jobs
 		pthread_setschedparam(pthread_self(), policy, &param);
 
 		JobManager::currentWorkerThread = this;
-        core::threadName = "worker " + std::to_string(id);
 
 		while (!shouldStop)
 		{

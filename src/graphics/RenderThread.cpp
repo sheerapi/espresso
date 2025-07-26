@@ -6,7 +6,6 @@ namespace graphics
 {
 	void RenderThread::init()
 	{
-		core::threadName = "render";
 		Renderer::init();
 	}
 
