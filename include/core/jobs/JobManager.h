@@ -32,6 +32,11 @@ namespace core::jobs
         static void beginFrame();
         static void endFrame();
 
+		static auto threadCount() -> size_t
+		{
+			return workerThreads.size();
+		}
+
 	protected:
 		static auto dequeueJob() -> std::shared_ptr<Job>;
 		static void onComplete(JobID id);

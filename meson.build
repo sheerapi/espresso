@@ -43,12 +43,12 @@ sources = [
 	'src/core/jobs/WorkerThread.cpp',
 	'src/core/jobs/Job.cpp',
 
-	'src/platform/EnvironmentInfo.cpp'
+	'src/platform/EnvironmentInfo.cpp',
+	'src/platform/StackTrace.cpp',
+	'src/utils/CrashReporter.cpp',
 ]
 
-editor_src = [
-	'src/editor/core/EditorContext.cpp'
-]
+editor_src = ['src/editor/core/EditorContext.cpp']
 
 if get_option('debug')
 	add_project_arguments(['-DDEBUG'], language: 'cpp')
@@ -71,8 +71,21 @@ dependencies = [
 	dependency('concurrentqueue'),
 	dependency('magic_enum', default_options: {'test': false}),
 	subproject('sol2', default_options: {'use_luajit': true}).get_variable('sol2_dep'),
-	dependency('backward-cpp')
 ]
+
+if host_machine.system() == 'windows'
+	dependencies += [
+		meson.get_compiler('cpp').find_library('dbghelp'),
+		meson.get_compiler('cpp').find_library('ntdll', required: false),
+	]
+elif host_machine.system() == 'linux'
+	dependencies += [
+		dependency('libunwind', required: true),
+		dependency('libunwind-ptrace', required: true),
+		dependency('dl', required: true),
+		dependency('libdw', required: true),
+	]
+endif
 
 espresso_lib = library(
 	'espresso',

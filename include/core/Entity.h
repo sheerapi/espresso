@@ -74,6 +74,17 @@ namespace core
 			return components;
 		}
 
+		auto getComponents() const -> std::vector<Component*>
+		{
+			std::vector<Component*> components;
+			components.reserve(_components.size());
+			for (const auto& component : _components)
+			{
+				components.push_back(component.get());
+			}
+			return components;
+		}
+
 		template <typename T> void removeComponent()
 		{
 			static_assert(std::is_base_of_v<Component, T>,
@@ -124,7 +135,6 @@ namespace core
 			child->_parent = this;
 			child->_active = true;
 
-			
 			_children.push_back(std::shared_ptr<Entity>(child));
 			return child;
 		}
@@ -134,7 +144,6 @@ namespace core
 			entity->_parent = this;
 			entity->_active = true;
 
-			
 			_children.push_back(std::shared_ptr<Entity>(entity));
 			return entity;
 		}
@@ -144,7 +153,7 @@ namespace core
 			if (child->isOrphan() && !isDescendant(child.get()))
 			{
 				child->_parent = this;
-				
+
 				_children.push_back(child);
 			}
 			else
@@ -192,7 +201,7 @@ namespace core
 
 		void removeChild(Entity* child)
 		{
-			
+
 			_children.remove_if(
 				[child](const auto& c)
 				{
@@ -207,7 +216,7 @@ namespace core
 
 		void removeChild(unsigned int id)
 		{
-			
+
 			_children.remove_if(
 				[id](const auto& child)
 				{
@@ -222,7 +231,7 @@ namespace core
 
 		void removeChild(const std::string& name)
 		{
-			
+
 			_children.remove_if(
 				[&name](const auto& child)
 				{
@@ -237,7 +246,7 @@ namespace core
 
 		void removeChildren(char entityTag)
 		{
-			
+
 			_children.remove_if(
 				[entityTag](const auto& child)
 				{
@@ -345,7 +354,7 @@ namespace core
 		void tick()
 		{
 			transform.update();
-			
+
 			if (!_active)
 			{
 				return;
@@ -370,9 +379,9 @@ namespace core
 		void render()
 		{
 			if (!_visible)
-            {
-                return;
-            }
+			{
+				return;
+			}
 
 			for (const auto& component : _components)
 			{
@@ -393,7 +402,7 @@ namespace core
 		void start()
 		{
 			transform._entity = this;
-			
+
 			if (_active)
 			{
 				for (const auto& component : _components)

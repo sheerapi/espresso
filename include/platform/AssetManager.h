@@ -85,6 +85,11 @@ namespace core
 			processors.push_back(new T());
 		}
 
+		static std::unordered_map<std::string, std::shared_ptr<Asset>> getLoadedAssets()
+		{
+			return loadedAssets;
+		}
+
 	private:
 		struct AssetEntry
 		{

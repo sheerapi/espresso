@@ -36,6 +36,11 @@ namespace platform
 		static auto isRunning() -> bool;
 		static void reportShutdown();
 
+		static auto threadCount() -> size_t
+		{
+			return threads.size();
+		}
+
 	private:
 		static std::vector<std::unique_ptr<Thread>> threads;
 		static std::mutex mutex;

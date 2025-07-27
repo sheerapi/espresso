@@ -2,8 +2,10 @@
 #include "platform/EnvironmentInfo.h"
 #include "core/Application.h"
 #include "core/log.h"
+#include "utils/CrashReporter.h"
 #include "utils/PerformanceTimer.h"
 #include <cstddef>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <iostream>
@@ -11,6 +13,7 @@
 
 #if defined(_WIN32)
 #	include <Windows.h>
+#	include <winnt.h>
 #elif defined(__APPLE__)
 #	include <sys/utsname.h>
 #	include <mach-o/dyld.h>
@@ -40,29 +43,26 @@ namespace platform
 	auto getCachePath(const std::string& org, const std::string& appName) -> std::string;
 	auto getLogPath(const std::string& org, const std::string& appName) -> std::string;
 
-#ifdef __unix
-	void signalHandler(int signal)
-	{
-		core::Application::main->generateCrashReport("signal", signal);
-		exit(EXIT_FAILURE);
-	}
-#elif defined(_WIN32)
-	LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* exception)
-	{
-		core::Application::main->generateCrashReport(
-			"exception", exception->ExceptionRecord->ExceptionCode);
-		return EXCEPTION_EXECUTE_HANDLER;
-	}
-#endif
-
 	void EnvironmentInfo::initialize(int argc, const char** argv)
 	{
 		es_stopwatchNamed("init env info");
 
-		for (size_t i = 0; i < argc; i++)
+		for (size_t i = 1; i < argc; i++)
 		{
 			commandLineArgs.emplace_back(argv[i]);
 		}
+
+#ifdef EDITOR
+		executionMode = ExecutionMode::Editor;
+#endif
+
+#if defined(DEBUG) && !defined(__OPTIMIZE__)
+		buildConfig = BuildConfiguration::Debug;
+#elif defined(DEBUG) && defined(__OPTIMIZE__)
+		buildConfig = BuildConfiguration::Development;
+#elif !defined(DEBUG)
+		buildConfig = BuildConfiguration::Shipping;
+#endif
 
 		environmentVars = getEnvironmentVariables();
 		system.platform = getPlatform();
@@ -87,17 +87,7 @@ namespace platform
 		std::filesystem::create_directories(paths.logPath);
 		std::filesystem::create_directories(paths.cachePath);
 
-#ifdef __linux
-		signal(SIGSEGV, signalHandler);
-		signal(SIGABRT, signalHandler);
-		signal(SIGFPE, signalHandler);
-		signal(SIGILL, signalHandler);
-#elif defined(_WIN32)
-		SetUnhandledExceptionFilter(ExceptionHandler);
-#endif
-
-		std::set_terminate(
-			[]() { core::Application::main->generateCrashReport("exception", 0); });
+		utils::CrashReporter::registerHandler();
 
 		if (std::filesystem::exists(std::filesystem::path(paths.logPath) /
 									"log_prev.txt"))
@@ -113,9 +103,6 @@ namespace platform
 										"log_prev.txt");
 		}
 
-		log_add_fp(fopen((std::filesystem::path(paths.logPath) / "log.txt").c_str(), "w"),
-				   LOG_TRACE);
-
 		std::ifstream tmpLog("tmp_log.txt");
 
 		std::ofstream log(std::filesystem::path(paths.logPath) / "log.txt",
@@ -126,6 +113,9 @@ namespace platform
 		std::filesystem::remove("tmp_log.txt");
 
 		log_remove_callback(0);
+
+		log_add_fp(fopen((std::filesystem::path(paths.logPath) / "log.txt").c_str(), "a"),
+				   LOG_TRACE);
 	}
 
 	auto getPlatform() -> std::string
@@ -428,6 +418,71 @@ namespace platform
 		return getDirectory(getExecutablePath()) + "/logs";
 #else
 		return getUserDataPath(org, appName) + "/logs";
+#endif
+	}
+
+	auto signalToString(int signal) -> std::string
+	{
+#ifdef __unix
+		switch (signal)
+		{
+		case SIGSEGV:
+			return "segmentation fault";
+
+		case SIGABRT:
+			return "abnormal termination";
+
+		case SIGILL:
+			return "illegal instruction";
+
+		case SIGFPE:
+			return "floating point error";
+
+		default:
+			return "unknown signal";
+		}
+#else
+		switch (signal)
+		{
+		case EXCEPTION_ACCESS_VIOLATION:
+			return "access violation";
+
+		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+			return "array bounds exceeded";
+
+		case EXCEPTION_DATATYPE_MISALIGNMENT:
+			return "misalignment on datatype";
+
+		case EXCEPTION_FLT_DENORMAL_OPERAND:
+			return "denormal operand";
+
+		case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+			return "you...divided by zero?";
+
+		case EXCEPTION_FLT_INEXACT_RESULT:
+			return "inexact result";
+
+		case EXCEPTION_FLT_INVALID_OPERATION:
+			return "invalid floating operation";
+
+		case EXCEPTION_ILLEGAL_INSTRUCTION:
+			return "illegal instruction";
+
+		case EXCEPTION_IN_PAGE_ERROR:
+			return "in-page error";
+
+		case EXCEPTION_INT_DIVIDE_BY_ZERO:
+			return "you...divided by zero?";
+
+		case EXCEPTION_PRIV_INSTRUCTION:
+			return "private instruction called";
+
+		case EXCEPTION_STACK_OVERFLOW:
+			return "stack overflow, refer to stack overflow for more details";
+
+		default:
+			return "unknown exception";
+		}
 #endif
 	}
 }

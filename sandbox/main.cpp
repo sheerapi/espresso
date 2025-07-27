@@ -18,7 +18,7 @@ public:
 		scene->addEntity()->addComponent<Camera>();
 		scene->addEntity("Test")->addComponent<LuaBehavior>("scripts/test.lua");
 
-		throw;
+		*(volatile int*)nullptr = 42;
 	}
 	
 	auto getAppInfo() -> platform::ApplicationInfo override

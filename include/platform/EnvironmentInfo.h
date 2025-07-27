@@ -106,7 +106,7 @@ namespace platform
 
 	struct EnvironmentInfo
 	{
-		Version engineVersion;	 // version
+		Version engineVersion{0, 1, 0, "prealpha"};	 // version
 		Version apiVersion;		 // graphic api version
 
 		std::vector<std::string> commandLineArgs;
@@ -120,4 +120,6 @@ namespace platform
 
 		void initialize(int argc, const char** argv);
 	};
+
+	auto signalToString(int signal) -> std::string;
 }

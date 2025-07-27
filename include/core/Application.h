@@ -3,11 +3,19 @@
 #include "platform/EnvironmentInfo.h"
 #include "platform/Thread.h"
 #include "platform/Window.h"
+#include <chrono>
 #include <memory>
 #include <string>
 
 namespace core
 {
+	namespace internals
+	{
+		inline static std::chrono::milliseconds startTime{
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch())};
+	}
+
 	inline bool verbose{false};
 	inline thread_local platform::ThreadTime time;
 
@@ -52,9 +60,12 @@ namespace core
 			return envInfo.get();
 		}
 
-		[[nodiscard]] auto hasInit() const -> bool;
+		auto getFrameMemoryPool() -> jobs::FrameMemoryPool*
+		{
+			return frameMemoryPool.get();
+		}
 
-		void generateCrashReport(const std::string& signalType = "signal", int code = 0);
+		[[nodiscard]] auto hasInit() const -> bool;
 
 	protected:
 		std::unique_ptr<jobs::FrameMemoryPool> frameMemoryPool;

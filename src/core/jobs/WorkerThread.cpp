@@ -65,6 +65,8 @@ namespace core::jobs
 		CPU_SET(id % std::thread::hardware_concurrency(), &cpuset);
 		pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
 
+		pthread_setname_np(pthread_self(), "worker");
+
         // set thread priority
 		int policy;
 		struct sched_param param;

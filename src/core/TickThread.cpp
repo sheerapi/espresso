@@ -1,6 +1,6 @@
-#include "core/Scene.h"
 #include "core/TickThread.h"
 #include "core/Application.h"
+#include "core/Scene.h"
 
 namespace core
 {
